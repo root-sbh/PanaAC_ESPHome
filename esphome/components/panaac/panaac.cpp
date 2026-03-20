@@ -501,7 +501,7 @@ namespace esphome
                 case climate::CLIMATE_MODE_OFF:
                 default:
                     second_frame[PANAAC_BYTEPOS_POWER] |= PANAAC_POWER_OFF;
-                    second_frame[PANAAC_BYTEPOS_MODE]  |= PANAAC_MODE_COOL;
+                    second_frame[PANAAC_BYTEPOS_MODE]  |= PANAAC_MODE_AUTO;
             }
 
             // temperature
@@ -509,9 +509,9 @@ namespace esphome
             encoded_temp &= 0x0F;
             second_frame[PANAAC_BYTEPOS_TEMP] = 0x20 | (encoded_temp << 1);
             
-            if (static_cast<uint8_t>(ac_state.temp) < ac_state.temp) // if x.5 degree in some models
+            if (ac_state.temp > static_cast<uint8_t>(ac_state.temp)) // if x.5 degree in some models
             {
-                second_frame[PANAAC_BYTEPOS_TEMP] |= 0x01;
+                second_frame[PANAAC_BYTEPOS_TEMP_HALF] |= 0x80; // half degree
             }
 
             // temperature with Dry
