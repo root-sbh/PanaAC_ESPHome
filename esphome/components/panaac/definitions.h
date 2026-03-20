@@ -48,10 +48,13 @@ namespace esphome
         const uint8_t PANAAC_BYTEPOS_POWER = 5;
         const uint8_t PANAAC_BYTEPOS_MODE = 5;
         const uint8_t PANAAC_BYTEPOS_TEMP = 6;
+        const uint8_t PANAAC_BYTEPOS_TEMP_HALF = 14;
         const uint8_t PANAAC_BYTEPOS_FAN = 8;
         const uint8_t PANAAC_BYTEPOS_SWINGV = 8;
         const uint8_t PANAAC_BYTEPOS_SWINGH = 9;
         const uint8_t PANAAC_BYTEPOS_QUIET = 13;
+        const uint8_t PANAAC_BYTEPOS_POWERFUL = 13;
+        const uint8_t PANAAC_BYTEPOS_OPT = 17;
         
         // byte values
         const uint8_t PANAAC_POWER_OFF = 0x08;
@@ -71,6 +74,7 @@ namespace esphome
             PANAAC_FAN_LEVEL_4 = 0x60,
             PANAAC_FAN_LEVEL_5 = 0x70,
             PANAAC_FAN_QUIET = 0x20,
+            PANAAC_FAN_POWERFUL = 0x01,
         };
         
         enum SwingVPos {
@@ -95,7 +99,7 @@ namespace esphome
         struct ClimateState {
             climate::ClimateMode mode;
             float temp;
-            climate::ClimateFanMode fan_mode;
+            StringRef fan_mode;
             FanLevel fan_level;
             climate::ClimateSwingMode swing_mode;
             SwingVPos swing_v_pos;
