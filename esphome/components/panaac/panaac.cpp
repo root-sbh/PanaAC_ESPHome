@@ -28,41 +28,61 @@ namespace esphome
             // state
             ac_state.mode = climate::CLIMATE_MODE_OFF;
             ac_state.temp = 26.0;
-            ac_state.fan_mode = climate::CLIMATE_FAN_AUTO;
+            ac_state.fan_mode = STR_FAN_AUTO;
+
             ac_state.fan_level = PANAAC_FAN_AUTO;
             ac_state.swing_mode = climate::CLIMATE_SWING_VERTICAL;
             ac_state.swing_v_pos = PANAAC_SWINGV_AUTO;
             ac_state.swing_h_pos = PANAAC_SWINGH_AUTO;
             ac_state.last_swing_v_pos = PANAAC_SWINGV_MIDDLE;
             ac_state.last_swing_h_pos = PANAAC_SWINGH_MIDDLE;
+            ac_state.nanoex = false;
+            ac_state.econavi = false;
+            ac_state.cool_with_dry = false;
+            ac_state.clothes_dry = false;
 
             // fan level options
-            FixedVector<const char *> fanlevel_options;
-            fanlevel_options.init(7);
-            if (this->fan_5level_)
-            {
-                fanlevel_options.push_back(STR_FAN_AUTO);
-                fanlevel_options.push_back(STR_FAN_L1);
-                fanlevel_options.push_back(STR_FAN_L2);
-                fanlevel_options.push_back(STR_FAN_L3);
-                fanlevel_options.push_back(STR_FAN_L4);
-                fanlevel_options.push_back(STR_FAN_L5);
-            }
-            else
-            {
-                fanlevel_options.push_back(STR_FAN_AUTO);
-                fanlevel_options.push_back(STR_FAN_L1);
-                fanlevel_options.push_back(STR_FAN_L3);
-                fanlevel_options.push_back(STR_FAN_L5);
-            }
+            // FixedVector<const char *> fanlevel_options;
+            // fanlevel_options.init(7);
+            // switch (this->fan_level_steps_)
+            // {
+            // case 5:
+            //     fanlevel_options.push_back(STR_FAN_AUTO);
+            //     fanlevel_options.push_back(STR_FAN_L1);
+            //     fanlevel_options.push_back(STR_FAN_L2);
+            //     fanlevel_options.push_back(STR_FAN_L3);
+            //     fanlevel_options.push_back(STR_FAN_L4);
+            //     fanlevel_options.push_back(STR_FAN_L5);
+            //     break;
+            // case 4:
+            //     fanlevel_options.push_back(STR_FAN_AUTO);
+            //     fanlevel_options.push_back(STR_FAN_L1);
+            //     fanlevel_options.push_back(STR_FAN_L2);
+            //     fanlevel_options.push_back(STR_FAN_L3);
+            //     fanlevel_options.push_back(STR_FAN_L4);
+            //     break;
+            // case 3:
+            // default:
+            //     fanlevel_options.push_back(STR_FAN_AUTO);
+            //     fanlevel_options.push_back(STR_FAN_L1);
+            //     fanlevel_options.push_back(STR_FAN_L2);
+            //     fanlevel_options.push_back(STR_FAN_L3);
+            //     break;
+            // }
 
-            // support quiet
-            if (this->supports_quiet_)
-            {
-                fanlevel_options.push_back(STR_FAN_QUIET);
-            }
+            // // support quiet
+            // if (this->supports_quiet_)
+            // {
+            //     fanlevel_options.push_back(STR_FAN_QUIET);
+            // }
 
-            this->fanlevel_->traits.set_options(fanlevel_options);
+            // // support powerful
+            // if (this->supports_powerful_)
+            // {
+            //     fanlevel_options.push_back(STR_FAN_POWERFUL);
+            // }
+
+            // this->fanlevel_->traits.set_options(fanlevel_options);
 
             // swing v options
             this->swingv_->traits.set_options({STR_SWINGV_AUTO, STR_SWINGV_HIGHEST, STR_SWINGV_HIGH, STR_SWINGV_MIDDLE, STR_SWINGV_LOW, STR_SWINGV_LOWEST});
@@ -119,16 +139,20 @@ namespace esphome
             if (this->supports_fan_only_)
                 traits.add_supported_mode(climate::CLIMATE_MODE_FAN_ONLY);
             
-            // Default to only 3 levels in ESPHome
-            traits.set_supported_fan_modes(
-                {   climate::CLIMATE_FAN_AUTO,
-                    climate::CLIMATE_FAN_LOW,       // level 1
-                    climate::CLIMATE_FAN_MEDIUM,    // level 3
-                    climate::CLIMATE_FAN_HIGH       // level 5
-                });
+            traits.set_supported_custom_fan_modes({STR_FAN_AUTO, STR_FAN_L1, STR_FAN_L2, STR_FAN_L3});
+            if (this->fan_level_steps_ > 3)
+            {
+                traits.add_supported_custom_fan_mode(STR_FAN_L4);
+            }
+            if (this->fan_level_steps_ > 4)
+            {
+                traits.add_supported_custom_fan_mode(STR_FAN_L5);
+            }
 
             if (this->supports_quiet_)
-                traits.add_supported_fan_mode(climate::CLIMATE_FAN_QUIET);
+                traits.add_supported_custom_fan_mode(STR_FAN_QUIET);
+            if (this->supports_powerful_)
+                traits.add_supported_custom_fan_mode(STR_FAN_POWERFUL);
 
             traits.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL});
             
@@ -181,7 +205,7 @@ namespace esphome
                     // bit 0
                     else if (data.expect_item(PANAAC_BIT_MARK, PANAAC_ZERO_SPACE))
                     {
-                        // 0 already initialized, hence do nothingg here
+                        // 0 already initialized, hence do nothing here
                     }
                     else
                     {
@@ -252,6 +276,19 @@ namespace esphome
                 {
                     case PANAAC_MODE_DRY:
                         ac_state.mode = climate::CLIMATE_MODE_DRY;
+
+                        //cool_with_dry
+                        //温度設定の変更どうやるの？(絶対温度と相対温度の変更)
+                        if (this->supports_cool_with_dry_)
+                        {
+                            ac_state.cool_with_dry = (((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xC0) >> 6) == 0x03);
+                        }
+
+                        //clothes_dry
+                        if (this->supports_clothes_dry_)
+                        {
+                            ac_state.clothes_dry = (((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xFE) >> 1) == 0x00);
+                        }
                         break;
                     case PANAAC_MODE_COOL:
                         ac_state.mode = climate::CLIMATE_MODE_COOL;
@@ -270,52 +307,119 @@ namespace esphome
             }
             
             // temperature
-            ac_state.temp = ((state_bytes[PANAAC_BYTEPOS_TEMP] & 0x1E) >> 1) + PANAAC_TEMP_MIN;
-            if ((state_bytes[PANAAC_BYTEPOS_TEMP] & 0x01) == 0x01)
+            ac_state.temp = ((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xFE) >> 1);
+            if (((state_bytes[PANAAC_BYTEPOS_TEMP_HALF] & 0x80) >> 7) == 0x01)
             {
                 ac_state.temp += 0.5;
             }
             
             // fan
-            switch (state_bytes[PANAAC_BYTEPOS_FAN] & 0xF0)
+            switch (this->fan_level_steps_)
             {
-                case PANAAC_FAN_LEVEL_1:
-                    ac_state.fan_mode = climate::CLIMATE_FAN_LOW;
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_1;
+                case 5:
+                    switch (state_bytes[PANAAC_BYTEPOS_FAN] & 0xF0)
+                    {
+                        case PANAAC_FAN_LEVEL_1:
+                            ac_state.fan_mode = STR_FAN_L1;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_1;
+                            break;
+                        case PANAAC_FAN_LEVEL_2:
+                            ac_state.fan_mode = STR_FAN_L2;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_2;
+                            break;
+                        case PANAAC_FAN_LEVEL_3:
+                            ac_state.fan_mode = STR_FAN_L3;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                            break;
+                        case PANAAC_FAN_LEVEL_4:
+                            ac_state.fan_mode = STR_FAN_L4;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_4;
+                            break;
+                        case PANAAC_FAN_LEVEL_5:
+                            ac_state.fan_mode = STR_FAN_L5;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                            break;
+                        case PANAAC_FAN_AUTO:
+                        default:
+                            ac_state.fan_mode = STR_FAN_AUTO;
+                            ac_state.fan_level = PANAAC_FAN_AUTO;
+                            break;
+                    }
                     break;
-                case PANAAC_FAN_LEVEL_2:
-                    ac_state.fan_mode = climate::CLIMATE_FAN_LOW;
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_2;
+                case 4:
+                    switch (state_bytes[PANAAC_BYTEPOS_FAN] & 0xF0)
+                    {
+                        case PANAAC_FAN_LEVEL_1:
+                            ac_state.fan_mode = STR_FAN_L1;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_1;
+                            break;
+                        case PANAAC_FAN_LEVEL_2:
+                            ac_state.fan_mode = STR_FAN_L2;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_2;
+                            break;
+                        case PANAAC_FAN_LEVEL_3:
+                            ac_state.fan_mode = STR_FAN_L3;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                            break;
+                        case PANAAC_FAN_LEVEL_5:
+                            ac_state.fan_mode = STR_FAN_L4;
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                            break;
+                        case PANAAC_FAN_LEVEL_4:
+                        case PANAAC_FAN_AUTO:
+                        default:
+                            ac_state.fan_mode = STR_FAN_AUTO;
+                            ac_state.fan_level = PANAAC_FAN_AUTO;
+                            break;
+                    }
                     break;
-                case PANAAC_FAN_LEVEL_3:
-                    ac_state.fan_mode = climate::CLIMATE_FAN_MEDIUM;
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_3;
-                    break;
-                case PANAAC_FAN_LEVEL_4:
-                    ac_state.fan_mode = climate::CLIMATE_FAN_MEDIUM;
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_4;
-                    break;
-                case PANAAC_FAN_LEVEL_5:
-                    ac_state.fan_mode = climate::CLIMATE_FAN_HIGH;
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    break;
-                case PANAAC_FAN_AUTO:
+                case 3:
                 default:
-                    ac_state.fan_mode = climate::CLIMATE_FAN_AUTO;
-                    ac_state.fan_level = PANAAC_FAN_AUTO;
+                        switch (state_bytes[PANAAC_BYTEPOS_FAN] & 0xF0)
+                        {
+                            case PANAAC_FAN_LEVEL_1:
+                                ac_state.fan_mode = STR_FAN_L1;
+                                ac_state.fan_level = PANAAC_FAN_LEVEL_1;
+                                break;
+                            case PANAAC_FAN_LEVEL_3:
+                                ac_state.fan_mode = STR_FAN_L2;
+                                ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                                break;
+                            case PANAAC_FAN_LEVEL_5:
+                                ac_state.fan_mode = STR_FAN_L3;
+                                ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                                break;
+                            case PANAAC_FAN_LEVEL_2:
+                            case PANAAC_FAN_LEVEL_4:
+                            case PANAAC_FAN_AUTO:
+                            default:
+                                ac_state.fan_mode = STR_FAN_AUTO;
+                                ac_state.fan_level = PANAAC_FAN_AUTO;
+                                break;
+                        }
                     break;
             }
 
             // quiet
             if (this->supports_quiet_)
             {
-                if ((state_bytes[PANAAC_BYTEPOS_QUIET] & 0xF0) == PANAAC_FAN_QUIET)
+                if ((state_bytes[PANAAC_BYTEPOS_QUIET] & 0x20) == PANAAC_FAN_QUIET)
                 {
-                    ac_state.fan_mode = climate::CLIMATE_FAN_QUIET;
-                    ac_state.fan_level = PANAAC_FAN_QUIET;
+                    ac_state.fan_mode = STR_FAN_QUIET;
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
                 }
             }
             
+            // powerful
+            if (this->supports_powerful_)
+            {
+                if ((state_bytes[PANAAC_BYTEPOS_POWERFUL] & 0x01) == PANAAC_FAN_POWERFUL)
+                {
+                    ac_state.fan_mode = STR_FAN_POWERFUL;
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
+                }
+            }
+
             //swing
             uint8_t swing_v = state_bytes[PANAAC_BYTEPOS_SWINGV] & 0x0F;
             uint8_t swing_h = state_bytes[PANAAC_BYTEPOS_SWINGH] & 0x0F;
@@ -340,6 +444,18 @@ namespace esphome
             else
             {
                 ac_state.swing_mode = climate::CLIMATE_SWING_OFF;
+            }
+
+            // nanoex
+            if (this->supports_nanoex_)
+            {
+                ac_state.nanoex = (state_bytes[PANAAC_BYTEPOS_OPT] & 0x04);
+            }
+
+            //econavi
+            if (this->supports_econavi_)
+            {
+                ac_state.econavi = (state_bytes[PANAAC_BYTEPOS_OPT] & 0x80);
             }
 
             return true;
@@ -418,7 +534,7 @@ namespace esphome
             this->swing_mode = ac_state.swing_mode;
             this->publish_state();
 
-            this->fanlevel_->set_fanlevel(ac_state.fan_level);
+            // this->fanlevel_->set_fanlevel(ac_state.fan_level);
             this->swingv_->set_swingvpos(ac_state.swing_v_pos);
             if (this->swing_horizontal_)
             {
@@ -433,7 +549,7 @@ namespace esphome
             std::vector<uint8_t> first_frame =  {   0x02, 0x20, 0xE0, 0x04, 0x00, 0x00, 0x00, 0x06 };
             std::vector<uint8_t> second_frame = {   0x02, 0x20, 0xE0, 0x04, 0x00, 0x00,
                                                     0x00, 0x80, 0x00, 0x00, 0x00, 0x0E,
-                                                    0xE0, 0x00, 0x00, 0x89, 0x00, 0x00,
+                                                    0xE0, 0x00, 0x00, 0x8A, 0x00, 0x00,
                                                     0x00  };
 
             // power & mode
@@ -462,58 +578,109 @@ namespace esphome
                 case climate::CLIMATE_MODE_OFF:
                 default:
                     second_frame[PANAAC_BYTEPOS_POWER] |= PANAAC_POWER_OFF;
-                    second_frame[PANAAC_BYTEPOS_MODE]  |= PANAAC_MODE_COOL;
+                    second_frame[PANAAC_BYTEPOS_MODE]  |= PANAAC_MODE_AUTO;
             }
 
             // temperature
-            uint8_t encoded_temp = static_cast<uint8_t>(ac_state.temp) - PANAAC_TEMP_MIN;
-            encoded_temp &= 0x0F;
-            second_frame[PANAAC_BYTEPOS_TEMP] = 0x20 | (encoded_temp << 1);
-            
-            if (static_cast<uint8_t>(ac_state.temp) < ac_state.temp) // if x.5 degree in some models
+            second_frame[PANAAC_BYTEPOS_TEMP] = (static_cast<uint8_t>(ac_state.temp) << 1);
+            if (ac_state.temp > static_cast<uint8_t>(ac_state.temp))
             {
-                second_frame[PANAAC_BYTEPOS_TEMP] |= 0x01;
+                second_frame[PANAAC_BYTEPOS_TEMP_HALF] |= 0x80; // half degree
+            }
+
+            if (ac_state.mode != climate::CLIMATE_MODE_DRY)
+            {
+                if (ac_state.cool_with_dry)
+                {
+                    //ここ相対温度だとこんな感じ
+                    //second_frame[PANAAC_BYTEPOS_TEMP] = 0xC0 | ((static_cast<int8_t>(ac_state.temp) & 0x0F) << 1);
+                }
+                else if (ac_state.clothes_dry)
+                {
+                    second_frame[PANAAC_BYTEPOS_TEMP] = 0x00;
+                }
             }
 
             // fan
             switch (ac_state.fan_mode)
             {
-                case climate::CLIMATE_FAN_LOW:
-                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_1 && ac_state.fan_level != PANAAC_FAN_LEVEL_2)
+                case STR_FAN_L1:
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_1)
                         ac_state.fan_level = PANAAC_FAN_LEVEL_1;
-                    second_frame[PANAAC_BYTEPOS_FAN] |= ac_state.fan_level;
                     break;
-                case climate::CLIMATE_FAN_MEDIUM:
-                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_3 && ac_state.fan_level != PANAAC_FAN_LEVEL_4)
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_3;
-                    second_frame[PANAAC_BYTEPOS_FAN] |= ac_state.fan_level;
-                    break;
-                case climate::CLIMATE_FAN_HIGH:
-                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    second_frame[PANAAC_BYTEPOS_FAN] |= ac_state.fan_level;
-                    break;
-                case climate::CLIMATE_FAN_QUIET:
-                    if (this->supports_quiet_)
+                case STR_FAN_L2:
+                    if (this->fan_level_steps_ == 3)
                     {
-                        if (ac_state.fan_level != PANAAC_FAN_QUIET)
-                            ac_state.fan_level = PANAAC_FAN_QUIET;
-                        second_frame[PANAAC_BYTEPOS_QUIET] |= PANAAC_FAN_QUIET;
-                        second_frame[PANAAC_BYTEPOS_FAN] |= ac_state.fan_level;
+                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_3)
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_3;
                     }
                     else
                     {
-                        second_frame[PANAAC_BYTEPOS_FAN] |= PANAAC_FAN_AUTO;
-                        ac_state.fan_mode = climate::CLIMATE_FAN_AUTO;
-                        ac_state.fan_level = PANAAC_FAN_AUTO;
+                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_2)
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_2;
                     }
                     break;
-                case climate::CLIMATE_FAN_AUTO:
+                case STR_FAN_L3:
+                    if (this->fan_level_steps_ == 3)
+                    {
+                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                    }
+                    else
+                    {
+                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_3)
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                    }
+                    break;
+                case STR_FAN_L4:
+                    if (this->fan_level_steps_ == 4)
+                    {
+                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                    }
+                    else
+                    {
+                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_4)
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_4;
+                    }
+                    break;
+                 case STR_FAN_L5:
+                    if (this->fan_level_steps_ == 5)
+                    {
+                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
+                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                    }
+                    break;
+                case STR_FAN_QUIET:
+                    if (this->supports_quiet_)
+                    {
+                        second_frame[PANAAC_BYTEPOS_QUIET] |= PANAAC_FAN_QUIET;
+                    }
+                    else
+                    {
+                        ac_state.fan_mode = STR_FAN_AUTO;
+                    }
+                    if (ac_state.fan_level != PANAAC_FAN_AUTO)
+                        ac_state.fan_level = PANAAC_FAN_AUTO;
+                    break;
+                case STR_FAN_POWERFUL:
+                    if (this->supports_powerful_)
+                    {
+                        second_frame[PANAAC_BYTEPOS_POWERFUL] |= PANAAC_FAN_POWERFUL;
+                    }
+                    else
+                    {
+                        ac_state.fan_mode = STR_FAN_AUTO;
+                    }
+                    if (ac_state.fan_level != PANAAC_FAN_AUTO)
+                        ac_state.fan_level = PANAAC_FAN_AUTO;
+                    break;
+                case STR_FAN_AUTO:
                 default:
                     if (ac_state.fan_level != PANAAC_FAN_AUTO)
                         ac_state.fan_level = PANAAC_FAN_AUTO;
-                    second_frame[PANAAC_BYTEPOS_FAN] |= ac_state.fan_level;
             }
+            second_frame[PANAAC_BYTEPOS_FAN] |= ac_state.fan_level;
 
             // swing
             switch (ac_state.swing_mode)
@@ -554,6 +721,18 @@ namespace esphome
                         second_frame[PANAAC_BYTEPOS_SWINGH] |= PANAAC_SWINGH_AUTO;
                         ac_state.swing_h_pos = PANAAC_SWINGH_AUTO;
                     }
+            }
+
+            // nanoex
+            if (this->supports_nanoex_ && ac_state.nanoex)
+            {
+                second_frame[PANAAC_BYTEPOS_OPT] |= 0x04;
+            }
+
+            // econavi
+            if (this->supports_econavi_ && ac_state.econavi)
+            {
+                second_frame[PANAAC_BYTEPOS_OPT] |= 0x80;
             }
 
             // checksum
@@ -627,27 +806,68 @@ namespace esphome
             ac_state.fan_mode = this->fan_mode.value();
             switch (ac_state.fan_mode)
             {
-                case climate::CLIMATE_FAN_LOW:
+                case STR_FAN_L1:
                     ac_state.fan_level = PANAAC_FAN_LEVEL_1;
                     break;
-                case climate::CLIMATE_FAN_MEDIUM:
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                case STR_FAN_L2:
+                    if (this->fan_level_steps_ == 3)
+                    {
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                    }
+                    else
+                    {
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_2;
+                    }
                     break;
-                case climate::CLIMATE_FAN_HIGH:
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                case STR_FAN_L3:
+                    if (this->fan_level_steps_ == 3)
+                    {
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                    }
+                    else
+                    {
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                    }
                     break;
-                case climate::CLIMATE_FAN_QUIET:
+                case STR_FAN_L4:
+                    if (this->fan_level_steps_ == 4)
+                    {
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                    }
+                    else
+                    {
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_4;
+                    }
+                    break;
+                 case STR_FAN_L5:
+                    if (this->fan_level_steps_ == 5)
+                    {
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                    }
+                    break;
+                case STR_FAN_QUIET:
                     if (this->supports_quiet_)
                     {
                         ac_state.fan_level = PANAAC_FAN_QUIET;
                     }
                     else
                     {
-                        ac_state.fan_mode = climate::CLIMATE_FAN_AUTO;
+                        ac_state.fan_mode = STR_FAN_AUTO;
                         ac_state.fan_level = PANAAC_FAN_AUTO;
                     }
                     break;
-                case climate::CLIMATE_FAN_AUTO:
+                case STR_FAN_POWERFUL:
+                    if (this->supports_powerful_)
+                    {
+                        ac_state.fan_level = PANAAC_FAN_POWERFUL;
+                    }
+                    else
+                    {
+                        ac_state.fan_mode = STR_FAN_AUTO;
+                        ac_state.fan_level = PANAAC_FAN_AUTO;
+                    }
+                    break;
+                case STR_FAN_AUTO:
                 default:
                     ac_state.fan_level = PANAAC_FAN_AUTO;
             }
@@ -716,7 +936,7 @@ namespace esphome
             this->swing_mode = ac_state.swing_mode;
             this->publish_state();
 
-            this->fanlevel_->set_fanlevel(ac_state.fan_level);
+            // this->fanlevel_->set_fanlevel(ac_state.fan_level);
             this->swingv_->set_swingvpos(ac_state.swing_v_pos);
             if (this->swing_horizontal_)
             {

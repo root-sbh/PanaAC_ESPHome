@@ -48,10 +48,14 @@ namespace esphome
         const uint8_t PANAAC_BYTEPOS_POWER = 5;
         const uint8_t PANAAC_BYTEPOS_MODE = 5;
         const uint8_t PANAAC_BYTEPOS_TEMP = 6;
+        const uint8_t PANAAC_BYTEPOS_TEMP_HALF = 14;
         const uint8_t PANAAC_BYTEPOS_FAN = 8;
         const uint8_t PANAAC_BYTEPOS_SWINGV = 8;
         const uint8_t PANAAC_BYTEPOS_SWINGH = 9;
         const uint8_t PANAAC_BYTEPOS_QUIET = 13;
+        const uint8_t PANAAC_BYTEPOS_POWERFUL = 13;
+        const uint8_t PANAAC_BYTEPOS_OPT = 17;
+
         
         // byte values
         const uint8_t PANAAC_POWER_OFF = 0x08;
@@ -71,6 +75,7 @@ namespace esphome
             PANAAC_FAN_LEVEL_4 = 0x60,
             PANAAC_FAN_LEVEL_5 = 0x70,
             PANAAC_FAN_QUIET = 0x20,
+            PANAAC_FAN_POWERFUL = 0x01,
         };
         
         enum SwingVPos {
@@ -102,6 +107,11 @@ namespace esphome
             SwingHPos swing_h_pos;
             SwingVPos last_swing_v_pos;
             SwingHPos last_swing_h_pos;
+            bool nanoex;
+            bool econavi;
+            // should be list like fanlevel
+            bool cool_with_dry;
+            bool clothes_dry;
         };
 
         static const char *STR_FAN_AUTO = "Auto";
@@ -111,6 +121,7 @@ namespace esphome
         static const char *STR_FAN_L4 = "Level 4";
         static const char *STR_FAN_L5 = "Level 5";
         static const char *STR_FAN_QUIET = "Quiet";
+        static const char *STR_FAN_POWERFUL = "Powerful";
 
         static const char *STR_SWINGV_AUTO = "Auto";
         static const char *STR_SWINGV_HIGHEST = "Highest";
