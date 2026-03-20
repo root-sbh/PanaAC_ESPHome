@@ -96,26 +96,23 @@ namespace esphome
                 traits.add_supported_mode(climate::CLIMATE_MODE_FAN_ONLY);
             
             // Default to only 3 levels in ESPHome
-            traits.set_supported_custom_fan_modes({STR_FAN_AUTO,
-                                            STR_FAN_L1,
-                                            STR_FAN_L2,
-                                            STR_FAN_L3
-                                        });
-
+            std::vector<const char *> fanmodes = {STR_FAN_AUTO.c_str(), STR_FAN_L1.c_str(), STR_FAN_L2.c_str(), STR_FAN_L3.c_str()};
             if (this->fan_level_steps_ >= 4)
             {
-                traits.add_supported_Custom_fan_mode(STR_FAN_L4);
+                fanmodes.push_back(STR_FAN_L4.c_str());
             }
             if (this->fan_level_steps_ >= 5)
             {
-                traits.add_supported_Custom_fan_mode(STR_FAN_L5);
+                fanmodes.push_back(STR_FAN_L5.c_str());
             }
 
             if (this->supports_quiet_)
-                traits.add_supported_Custom_fan_mode(STR_FAN_QUIET);
+                fanmodes.push_back(STR_FAN_QUIET.c_str());
 
             if (this->supports_powerful_)
-                traits.add_supported_Custom_fan_mode(STR_FAN_POWERFUL);
+                fanmodes.push_back(STR_FAN_POWERFUL.c_str());
+
+            traits.set_supported_custom_fan_modes(fanmodes);
 
             traits.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL});
             
@@ -305,7 +302,7 @@ namespace esphome
                     ac_state.fan_level = PANAAC_FAN_LEVEL_4;
                     break;
                 case PANAAC_FAN_LEVEL_5:
-                    case (fan_level_steps_)
+                    case (this->fan_level_steps_)
                     {
                         case 3:
                         default:
@@ -532,83 +529,88 @@ namespace esphome
             }
 
             // fan
-            switch (ac_state.fan_mode)
+            if (ac_state.fan_mode == STR_FAN_L1)
             {
-                case STR_FAN_L1:
-                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_1)
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_1;
-                    break;
-                case STR_FAN_L2:
-                    if (this->fan_level_steps_ == 3)
-                    {
-                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_3)
+                if (ac_state.fan_level != PANAAC_FAN_LEVEL_1)
+                    ac_state.fan_level = PANAAC_FAN_LEVEL_1;
+            }
+            else if (ac_state.fan_mode == STR_FAN_L2)
+            {
+                if (this->fan_level_steps_ == 3)
+                {
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_3)
                             ac_state.fan_level = PANAAC_FAN_LEVEL_3;
-                    }
-                    else
-                    {
-                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_2)
-                            ac_state.fan_level = PANAAC_FAN_LEVEL_2;
-                    }
-                    break;
-                case STR_FAN_L3:
-                    if (this->fan_level_steps_ == 3)
-                    {
-                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
-                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    }
-                    else
-                    {
-                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_3)
-                            ac_state.fan_level = PANAAC_FAN_LEVEL_3;
-                    }
-                    break;
-                case STR_FAN_L4:
-                    if (this->fan_level_steps_ == 4)
-                    {
-                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
-                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    }
-                    else
-                    {
-                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_4)
-                            ac_state.fan_level = PANAAC_FAN_LEVEL_4;
-                    }
-                    break;
-                 case STR_FAN_L5:
-                    if (this->fan_level_steps_ == 5)
-                    {
-                        if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
-                            ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    }
-                    break;
-                case STR_FAN_QUIET:
-                    if (this->supports_quiet_)
-                    {
-                        second_frame[PANAAC_BYTEPOS_QUIET] |= PANAAC_FAN_QUIET;
-                    }
-                    else
-                    {
-                        ac_state.fan_mode = STR_FAN_AUTO;
-                    }
-                    if (ac_state.fan_level != PANAAC_FAN_AUTO)
-                        ac_state.fan_level = PANAAC_FAN_AUTO;
-                    break;
-                case STR_FAN_POWERFUL:
-                    if (this->supports_powerful_)
-                    {
-                        second_frame[PANAAC_BYTEPOS_POWERFUL] |= PANAAC_FAN_POWERFUL;
-                    }
-                    else
-                    {
-                        ac_state.fan_mode = STR_FAN_AUTO;
-                    }
-                    if (ac_state.fan_level != PANAAC_FAN_AUTO)
-                        ac_state.fan_level = PANAAC_FAN_AUTO;
-                    break;
-                case STR_FAN_AUTO:
-                default:
-                    if (ac_state.fan_level != PANAAC_FAN_AUTO)
-                        ac_state.fan_level = PANAAC_FAN_AUTO;
+                }
+                else
+                {
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_2)
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_2;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_L3)
+            {
+                if (this->fan_level_steps_ == 3)
+                {
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                }
+                else
+                {
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_3)
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_L4)
+            {
+                if (this->fan_level_steps_ == 4)
+                {
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                }
+                else
+                {
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_4)
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_4;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_L5)
+            {
+                if (this->fan_level_steps_ == 5)
+                {
+                    if (ac_state.fan_level != PANAAC_FAN_LEVEL_5)
+                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_QUIET)
+            {
+                if (this->supports_quiet_)
+                {
+                    second_frame[PANAAC_BYTEPOS_QUIET] |= PANAAC_FAN_QUIET;
+                }
+                else
+                {
+                    ac_state.fan_mode = STR_FAN_AUTO;
+                }
+                if (ac_state.fan_level != PANAAC_FAN_AUTO)
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
+            }
+            else if (ac_state.fan_mode == STR_FAN_POWERFUL)
+            {
+                if (this->supports_powerful_)
+                {
+                    second_frame[PANAAC_BYTEPOS_POWERFUL] |= PANAAC_FAN_POWERFUL;
+                }
+                else
+                {
+                    ac_state.fan_mode = STR_FAN_AUTO;
+                }
+                if (ac_state.fan_level != PANAAC_FAN_AUTO)
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
+            }
+            else
+            {
+                if (ac_state.fan_level != PANAAC_FAN_AUTO)
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
             }
             second_frame[PANAAC_BYTEPOS_FAN] |= ac_state.fan_level;
 
@@ -734,69 +736,75 @@ namespace esphome
 
             // fan
             ac_state.fan_mode = this->get_custom_fan_mode();
-            switch (ac_state.fan_mode)
+            if (ac_state.fan_mode == STR_FAN_L1)
             {
-                case STR_FAN_L1:
-                    ac_state.fan_level = PANAAC_FAN_LEVEL_1;
-                    break;
-                case STR_FAN_L2:
-                    if (fan_level_steps_ == 3)
-                    {
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_3;
-                    }
-                    else
-                    {
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_2;
-                    }
-                    break;
-                case STR_FAN_L3:
-                    if (fan_level_steps_ == 3)
-                    {
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    }
-                    else
-                    {
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_3;
-                    }
-                    break;
-                case STR_FAN_L4:
-                    if (fan_level_steps_ == 4)
-                    {
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    }
-                    else
-                    {
-                        ac_state.fan_level = PANAAC_FAN_LEVEL_4;
-                    }
-                    break;
-                case STR_FAN_L5:
+                ac_state.fan_level = PANAAC_FAN_LEVEL_1;
+            }
+            else if (ac_state.fan_mode == STR_FAN_L2)
+            {
+                if (this->fan_level_steps_ == 3)
+                {
+                    ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                }
+                else
+                {
+                    ac_state.fan_level = PANAAC_FAN_LEVEL_2;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_L3)
+            {
+                if (this->fan_level_steps_ == 3)
+                {
                     ac_state.fan_level = PANAAC_FAN_LEVEL_5;
-                    break;
-                case STR_FAN_QUIET:
-                    if (this->supports_quiet_)
-                    {
-                        ac_state.fan_level = PANAAC_FAN_QUIET;
-                    }
-                    else
-                    {
-                        ac_state.fan_mode = STR_FAN_AUTO;
-                        ac_state.fan_level = PANAAC_FAN_AUTO;
-                    }
-                    break;
-                case STR_FAN_POWERFUL:
-                    if (this->supports_powerful_)
-                    {
-                        ac_state.fan_level = PANAAC_FAN_POWERFUL;
-                    }
-                    else
-                    {
-                        ac_state.fan_mode = STR_FAN_AUTO;
-                        ac_state.fan_level = PANAAC_FAN_AUTO;
-                    }
-                    break;
-                case STR_FAN_AUTO:
-                default:
+                }
+                else
+                {
+                    ac_state.fan_level = PANAAC_FAN_LEVEL_3;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_L4)
+            {
+                if (this->fan_level_steps_ == 4)
+                {
+                    ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+                }
+                else
+                {
+                    ac_state.fan_level = PANAAC_FAN_LEVEL_4;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_L5)
+            {
+                ac_state.fan_level = PANAAC_FAN_LEVEL_5;
+            }
+            else if (ac_state.fan_mode == STR_FAN_QUIET)
+            {
+                if (this->supports_quiet_)
+                {
+                    ac_state.fan_level = PANAAC_FAN_QUIET;
+                }
+                else
+                {
+                    ac_state.fan_mode = STR_FAN_AUTO;
                     ac_state.fan_level = PANAAC_FAN_AUTO;
+                }
+            }
+            else if (ac_state.fan_mode == STR_FAN_POWERFUL)
+            {
+                if (this->supports_powerful_)
+                {
+                    ac_state.fan_level = PANAAC_FAN_POWERFUL;
+                }
+                else
+                {
+                    ac_state.fan_mode = STR_FAN_AUTO;
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
+                }
+            }
+            else
+            {
+                ac_state.fan_mode = STR_FAN_AUTO;
+                ac_state.fan_level = PANAAC_FAN_AUTO;
             }
 
             // swing
