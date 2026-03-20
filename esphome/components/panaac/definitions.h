@@ -106,6 +106,11 @@ namespace esphome
             SwingHPos swing_h_pos;
             SwingVPos last_swing_v_pos;
             SwingHPos last_swing_h_pos;
+            bool nanoex;
+            bool econavi;
+            // should be list like fanlevel
+            bool cool_with_dry;
+            bool clothes_dry;
         };
 
         static const char *STR_FAN_AUTO = "Auto";

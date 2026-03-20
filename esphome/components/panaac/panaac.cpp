@@ -29,11 +29,16 @@ namespace esphome
             ac_state.mode = climate::CLIMATE_MODE_OFF;
             ac_state.temp = 26.0;
             ac_state.fan_mode = STR_FAN_AUTO;
+            ac_state.fan_level = PANAAC_FAN_AUTO;
             ac_state.swing_mode = climate::CLIMATE_SWING_VERTICAL;
             ac_state.swing_v_pos = PANAAC_SWINGV_AUTO;
             ac_state.swing_h_pos = PANAAC_SWINGH_AUTO;
             ac_state.last_swing_v_pos = PANAAC_SWINGV_MIDDLE;
             ac_state.last_swing_h_pos = PANAAC_SWINGH_MIDDLE;
+            ac_state.nanoex = false;
+            ac_state.econavi = false;
+            ac_state.cool_with_dry = false;
+            ac_state.clothes_dry = false;
 
             // swing v options
             this->swingv_->traits.set_options({STR_SWINGV_AUTO, STR_SWINGV_HIGHEST, STR_SWINGV_HIGH, STR_SWINGV_MIDDLE, STR_SWINGV_LOW, STR_SWINGV_LOWEST});
@@ -234,6 +239,19 @@ namespace esphome
                 {
                     case PANAAC_MODE_DRY:
                         ac_state.mode = climate::CLIMATE_MODE_DRY;
+
+                        //cool_with_dry
+                        //温度設定の変更どうやるの？(絶対温度と相対温度の変更)
+                        if (this->supports_cool_with_dry_)
+                        {
+                            ac_state.cool_with_dry = (((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xC0) >> 6) == 0x03);
+                        }
+
+                        //clothes_dry
+                        if (this->supports_clothes_dry_)
+                        {
+                            ac_state.clothes_dry = (((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xFE) >> 1) == 0x00);
+                        }
                         break;
                     case PANAAC_MODE_COOL:
                         ac_state.mode = climate::CLIMATE_MODE_COOL;
@@ -353,6 +371,18 @@ namespace esphome
             else
             {
                 ac_state.swing_mode = climate::CLIMATE_SWING_OFF;
+            }
+
+            // nanoex
+            if (this->supports_nanoex_)
+            {
+                ac_state.nanoex = (state_bytes[PANAAC_BYTEPOS_OPT] & 0x04);
+            }
+
+            //econavi
+            if (this->supports_econavi_)
+            {
+                ac_state.econavi = (state_bytes[PANAAC_BYTEPOS_OPT] & 0x80);
             }
 
             return true;
@@ -487,6 +517,20 @@ namespace esphome
                 second_frame[PANAAC_BYTEPOS_TEMP] |= 0x01;
             }
 
+            // temperature with Dry
+            if (ac_state.mode != climate::CLIMATE_MODE_DRY)
+            {
+                if (ac_state.cool_with_dry)
+                {
+                    //ここ相対温度だとこんな感じ
+                    //second_frame[PANAAC_BYTEPOS_TEMP] = 0xC0 | ((static_cast<int8_t>(ac_state.temp) & 0x0F) << 1);
+                }
+                else if (ac_state.clothes_dry)
+                {
+                    second_frame[PANAAC_BYTEPOS_TEMP] = 0x00;
+                }
+            }
+
             // fan
             switch (ac_state.fan_mode)
             {
@@ -607,6 +651,18 @@ namespace esphome
                         second_frame[PANAAC_BYTEPOS_SWINGH] |= PANAAC_SWINGH_AUTO;
                         ac_state.swing_h_pos = PANAAC_SWINGH_AUTO;
                     }
+            }
+
+            // nanoex
+            if (this->supports_nanoex_ && ac_state.nanoex)
+            {
+                second_frame[PANAAC_BYTEPOS_OPT] |= 0x04;
+            }
+
+            // econavi
+            if (this->supports_econavi_ && ac_state.econavi)
+            {
+                second_frame[PANAAC_BYTEPOS_OPT] |= 0x80;
             }
 
             // checksum
@@ -824,6 +880,46 @@ namespace esphome
 
             this->publish_state();
 
+        }
+
+                void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {
+            this->supports_nanoex_ = supports_nanoex;
+            this->supports_nanoex_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.nanoex)
+                    return;
+                this->ac_state.nanoex = state;
+                update_state();
+            });
+        }
+    
+        void PanaACClimate::set_supports_econavi(switch_::Switch *supports_econavi) {
+            this->supports_econavi_ = supports_econavi;
+            this->supports_econavi_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.econavi)
+                    return;
+                this->ac_state.econavi = state;
+                update_state();
+            });
+        }
+
+        void PanaACClimate::set_supports_cool_with_dry(switch_::Switch *supports_cool_with_dry) {
+            this->supports_cool_with_dry_ = supports_cool_with_dry;
+            this->supports_cool_with_dry_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.cool_with_dry)
+                    return;
+                this->ac_state.cool_with_dry = state;
+                update_state();
+            });
+        }
+
+        void PanaACClimate::set_supports_clothes_dry(switch_::Switch *supports_clothes_dry) {
+            this->supports_clothes_dry_ = supports_clothes_dry;
+            this->supports_clothes_dry_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.clothes_dry)
+                    return;
+                this->ac_state.clothes_dry = state;
+                update_state();
+            });
         }
 
     } // namespace panaac

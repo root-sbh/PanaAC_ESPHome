@@ -18,6 +18,7 @@
 
 #include "definitions.h"
 #include "extra.h"
+#include "esphome/components/switch/switch.h"
 #include <cinttypes>
 
 namespace esphome
@@ -49,6 +50,11 @@ namespace esphome
             void set_supports_fan_only(bool supports_fan_only) { this->supports_fan_only_ = supports_fan_only; }
             void set_ir_control(bool ir_control) { this->ir_control_ = ir_control; }
 
+            void set_supports_nanoex(switch_::Switch *supports_nanoex);
+            void set_supports_econavi(switch_::Switch *supports_econavi);
+            void set_supports_cool_with_dry(switch_::Switch *supports_cool_with_dry);
+            void set_supports_clothes_dry(switch_::Switch *supports_clothes_dry);
+
             void set_swingv(PanaACSwingV *swingv) { this->swingv_ = swingv; }
             void set_swingh(PanaACSwingH *swingh) { this->swingh_ = swingh; }
 
@@ -73,6 +79,11 @@ namespace esphome
             bool supports_powerful_;
             bool ir_control_;
             bool supports_fan_only_;
+
+            switch_::Switch *supports_nanoex_ = nullptr;
+            switch_::Switch *supports_econavi_ = nullptr;
+            switch_::Switch *supports_cool_with_dry_ = nullptr;
+            switch_::Switch *supports_clothes_dry_ = nullptr;
 
             PanaACSwingV *swingv_{nullptr};
             PanaACSwingH *swingh_{nullptr};

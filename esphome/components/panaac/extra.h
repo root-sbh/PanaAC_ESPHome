@@ -49,5 +49,11 @@ namespace esphome
             PanaACClimate *climate_{nullptr};
         };
 
+        class PanasonicACSwitch : public switch_::Switch, public Component
+        {
+        protected:
+            void write_state(bool state) override { this->publish_state(state); }
+        };
+
     } // namespace panaac
 } // namespace esphome
