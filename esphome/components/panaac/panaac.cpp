@@ -91,15 +91,17 @@ namespace esphome
                 traits.add_supported_mode(climate::CLIMATE_MODE_FAN_ONLY);
             
             // Default to only 3 levels in ESPHome
-            traits.set_supported_fan_modes(
-                {   climate::CLIMATE_FAN_AUTO,
-                    climate::CLIMATE_FAN_LOW,       // level 1
-                    climate::CLIMATE_FAN_MEDIUM,    // level 3
-                    climate::CLIMATE_FAN_HIGH       // level 5
-                });
+            traits.set_supported_custom_fan_modes({STR_FAN_AUTO,
+                                            STR_FAN_L1,
+                                            STR_FAN_L2,
+                                            STR_FAN_L3
+                                        });
 
             if (this->supports_quiet_)
-                traits.add_supported_fan_mode(climate::CLIMATE_FAN_QUIET);
+                traits.add_supported_Custom_fan_mode(STR_FAN_QUIET);
+
+            if (this->supports_powerful_)
+                traits.add_supported_Custom_fan_mode(STR_FAN_POWERFUL);
 
             traits.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL});
             
