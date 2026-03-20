@@ -18,7 +18,6 @@
 
 #include "definitions.h"
 #include "extra.h"
-#include "esphome/components/switch/switch.h"
 #include <cinttypes>
 
 namespace esphome

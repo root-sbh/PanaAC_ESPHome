@@ -19,6 +19,7 @@
 #include "esphome/components/climate_ir/climate_ir.h"
 #include "esphome/components/select/select.h"
 #include "esphome/components/remote_base/remote_base.h"
+#include "esphome/components/switch/switch.h"
 #include "esphome/core/log.h"
 #include <cstdlib>
 #include <cinttypes>
