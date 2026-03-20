@@ -24,27 +24,27 @@ PanaACClimate = panaac_ns.class_('PanaACClimate', climate_ir.ClimateIR)
 # PanaACFanLevel = panaac_ns.class_('PanaACFanLevel', select.Select, cg.Component)
 PanaACSwingV = panaac_ns.class_('PanaACSwingV', select.Select, cg.Component)
 PanaACSwingH = panaac_ns.class_('PanaACSwingH', select.Select, cg.Component)
-PanaACSwitch = panaac_ns.class_("PanaACSwitch", switch.Switch, cg.Component)
+# PanaACSwitch = panaac_ns.class_("PanaACSwitch", switch.Switch, cg.Component)
 
 CONF_SUPPORT_FAN_ONLY = "supports_fan_only"
 CONF_SWING_HORIZONTAL = "swing_horizontal"
 CONF_TEMP_STEP = "temp_step"
 CONF_SUPPORT_QUIET = "supports_quiet"
-CONF_SUPPORT_POWERFUL = "supports_powerful"
+# CONF_SUPPORT_POWERFUL = "supports_powerful"
 CONF_FAN_LEVEL_STEPS = "fan_level_steps"
 CONF_IR_CONTROL = "ir_control"
 
-CONF_NANOEX_SWITCH = "supports_nanoex"
-#CONF_ECO_SWITCH = "eco_switch"
-CONF_ECONAVI_SWITCH = "supports_econavi"
-CONF_COOL_WITH_DRY_SWITCH = "supports_cool_with_dry"
-CONF_CLOTHES_DRY_SWITCH = "supports_clothes_dry"
+# CONF_NANOEX_SWITCH = "supports_nanoex"
+# #CONF_ECO_SWITCH = "eco_switch"
+# CONF_ECONAVI_SWITCH = "supports_econavi"
+# CONF_COOL_WITH_DRY_SWITCH = "supports_cool_with_dry"
+# CONF_CLOTHES_DRY_SWITCH = "supports_clothes_dry"
 
 CONF_SWINGV_ID = "swingv_id"
 CONF_SWINGH_ID = "swingh_id"
 # CONF_FANLEVEL_ID = "fanlevel_id"
 
-SWITCH_SCHEMA = switch.switch_schema(PanaACSwitch).extend(cv.COMPONENT_SCHEMA)
+#SWITCH_SCHEMA = switch.switch_schema(PanaACSwitch).extend(cv.COMPONENT_SCHEMA)
 
 CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(PanaACClimate).extend({
     cv.GenerateID(): cv.declare_id(PanaACClimate),
@@ -53,10 +53,10 @@ CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(PanaACClimate).extend
     # cv.GenerateID(CONF_FANLEVEL_ID): cv.declare_id(PanaACFanLevel),
     cv.Optional(CONF_SWING_HORIZONTAL, default=False): cv.boolean,
     cv.Optional(CONF_TEMP_STEP, default=1.0): cv.float_,
-    # cv.Optional(CONF_FAN_LEVEL_STEPS, default=3): cv.int_range(min=3, max=5),
+    cv.Optional(CONF_FAN_LEVEL_STEPS, default=3): cv.int_range(min=3, max=5),
     cv.Optional(CONF_SUPPORT_QUIET, default=False): cv.boolean,
     cv.Optional(CONF_SUPPORT_FAN_ONLY, default=False): cv.boolean,
-    cv.Optional(CONF_SUPPORT_POWERFUL, default=False): cv.boolean,
+    # cv.Optional(CONF_SUPPORT_POWERFUL, default=False): cv.boolean,
     # cv.Optional(CONF_NANOEX_SWITCH): SWITCH_SCHEMA,
     # cv.Optional(CONF_ECONAVI_SWITCH): SWITCH_SCHEMA,
     # cv.Optional(CONF_COOL_WITH_DRY_SWITCH): SWITCH_SCHEMA,
@@ -72,8 +72,8 @@ async def to_code(config):
     cg.add(var.set_temp_step(config[CONF_TEMP_STEP]))
     cg.add(var.set_supports_fan_only(config[CONF_SUPPORT_FAN_ONLY]))
     cg.add(var.set_supports_quiet(config[CONF_SUPPORT_QUIET]))
-    cg.add(var.set_supports_powerful(config[CONF_SUPPORT_POWERFUL]))
-    # cg.add(var.set_fan_level_steps(config[CONF_FAN_LEVEL_STEPS]))
+    # cg.add(var.set_supports_powerful(config[CONF_SUPPORT_POWERFUL]))
+    cg.add(var.set_fan_level_steps(config[CONF_FAN_LEVEL_STEPS]))
     # cg.add(var.set_supports_nanoex(config[CONF_NANOEX_SWITCH]))
     # cg.add(var.set_supports_econavi(config[CONF_ECONAVI_SWITCH]))
     # cg.add(var.set_supports_cool_with_dry(config[CONF_COOL_WITH_DRY_SWITCH]))
