@@ -17,7 +17,7 @@ import esphome.config_validation as cv
 from esphome.components import climate_ir, select, switch
 from esphome.const import CONF_ID, CONF_NAME, CONF_DISABLED_BY_DEFAULT
 
-AUTO_LOAD = ['climate_ir','select']
+AUTO_LOAD = ['climate_ir','select', "switch"]
 
 panaac_ns = cg.esphome_ns.namespace('panaac')
 PanaACClimate = panaac_ns.class_('PanaACClimate', climate_ir.ClimateIR)
@@ -57,10 +57,10 @@ CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(PanaACClimate).extend
     cv.Optional(CONF_SUPPORT_QUIET, default=False): cv.boolean,
     cv.Optional(CONF_SUPPORT_FAN_ONLY, default=False): cv.boolean,
     cv.Optional(CONF_SUPPORT_POWERFUL, default=False): cv.boolean,
-    cv.Optional(CONF_NANOEX_SWITCH, default=False): SWITCH_SCHEMA,
-    cv.Optional(CONF_ECONAVI_SWITCH, default=False): SWITCH_SCHEMA,
-    cv.Optional(CONF_COOL_WITH_DRY_SWITCH, default=False): SWITCH_SCHEMA,
-    cv.Optional(CONF_CLOTHES_DRY_SWITCH, default=False): SWITCH_SCHEMA,
+    cv.Optional(CONF_NANOEX_SWITCH): SWITCH_SCHEMA,
+    cv.Optional(CONF_ECONAVI_SWITCH): SWITCH_SCHEMA,
+    cv.Optional(CONF_COOL_WITH_DRY_SWITCH): SWITCH_SCHEMA,
+    cv.Optional(CONF_CLOTHES_DRY_SWITCH): SWITCH_SCHEMA,
     cv.Optional(CONF_IR_CONTROL, default=False): cv.boolean,
 })
 
