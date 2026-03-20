@@ -97,6 +97,15 @@ namespace esphome
                                             STR_FAN_L3
                                         });
 
+            if (this->fan_level_steps_ >= 4)
+            {
+                traits.add_supported_Custom_fan_mode(STR_FAN_L4);
+            }
+            if (this->fan_level_steps_ >= 5)
+            {
+                traits.add_supported_Custom_fan_mode(STR_FAN_L5);
+            }
+
             if (this->supports_quiet_)
                 traits.add_supported_Custom_fan_mode(STR_FAN_QUIET);
 
