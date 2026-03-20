@@ -882,7 +882,7 @@ namespace esphome
 
         }
 
-                void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {
+        void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {
             this->supports_nanoex_ = supports_nanoex;
             this->supports_nanoex_->add_on_state_callback([this](bool state) {
                 if (state == this->ac_state.nanoex)
