@@ -114,14 +114,14 @@ namespace esphome
             bool clothes_dry;
         };
 
-        static const StringRef STR_FAN_AUTO = "Auto";
-        static const StringRef STR_FAN_L1 = "Level 1";
-        static const StringRef STR_FAN_L2 = "Level 2";
-        static const StringRef STR_FAN_L3 = "Level 3";
-        static const StringRef STR_FAN_L4 = "Level 4";
-        static const StringRef STR_FAN_L5 = "Level 5";
-        static const StringRef STR_FAN_QUIET = "Quiet";
-        static const StringRef STR_FAN_POWERFUL = "Powerful";
+        static const StringRef STR_FAN_AUTO = StringRef("Auto");
+        static const StringRef STR_FAN_L1 = StringRef("Level 1");
+        static const StringRef STR_FAN_L2 = StringRef("Level 2");
+        static const StringRef STR_FAN_L3 = StringRef("Level 3");
+        static const StringRef STR_FAN_L4 = StringRef("Level 4");
+        static const StringRef STR_FAN_L5 = StringRef("Level 5");
+        static const StringRef STR_FAN_QUIET = StringRef("Quiet");
+        static const StringRef STR_FAN_POWERFUL = StringRef("Powerful");
 
         static const char *STR_SWINGV_AUTO = "Auto";
         static const char *STR_SWINGV_HIGHEST = "Highest";

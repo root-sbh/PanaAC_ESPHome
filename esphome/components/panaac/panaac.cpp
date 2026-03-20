@@ -302,7 +302,7 @@ namespace esphome
                     ac_state.fan_level = PANAAC_FAN_LEVEL_4;
                     break;
                 case PANAAC_FAN_LEVEL_5:
-                    case (this->fan_level_steps_)
+                    switch (this->fan_level_steps_)
                     {
                         case 3:
                         default:
