@@ -333,7 +333,7 @@ namespace esphome
                 if ((state_bytes[PANAAC_BYTEPOS_QUIET] & 0x20) == PANAAC_FAN_QUIET)
                 {
                     ac_state.fan_mode = STR_FAN_QUIET;
-                    ac_state.fan_level = PANAAC_FAN_QUIET;
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
                 }
             }
 
@@ -343,7 +343,7 @@ namespace esphome
                 if ((state_bytes[PANAAC_BYTEPOS_POWERFUL] & 0x01) == PANAAC_FAN_POWERFUL)
                 {
                     ac_state.fan_mode = STR_FAN_POWERFUL;
-                    ac_state.fan_level = PANAAC_FAN_POWERFUL;
+                    ac_state.fan_level = PANAAC_FAN_AUTO;
                 }
             }
             
@@ -475,7 +475,7 @@ namespace esphome
             std::vector<uint8_t> first_frame =  {   0x02, 0x20, 0xE0, 0x04, 0x00, 0x00, 0x00, 0x06 };
             std::vector<uint8_t> second_frame = {   0x02, 0x20, 0xE0, 0x04, 0x00, 0x00,
                                                     0x00, 0x80, 0x00, 0x00, 0x00, 0x0E,
-                                                    0xE0, 0x00, 0x00, 0x89, 0x00, 0x00,
+                                                    0xE0, 0x00, 0x00, 0x8A, 0x00, 0x00,
                                                     0x00  };
 
             // power & mode
