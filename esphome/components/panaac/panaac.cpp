@@ -252,8 +252,8 @@ namespace esphome
             }
             
             // temperature
-            ac_state.temp = ((state_bytes[PANAAC_BYTEPOS_TEMP] & 0x1E) >> 1) + PANAAC_TEMP_MIN;
-            if ((state_bytes[PANAAC_BYTEPOS_TEMP] & 0x01) == 0x01)
+            ac_state.temp = ((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xFE) >> 1);
+            if (((state_bytes[PANAAC_BYTEPOS_TEMP_HALF] & 0x80) >> 7) == 0x01)
             {
                 ac_state.temp += 0.5;
             }
@@ -266,6 +266,7 @@ namespace esphome
                     ac_state.fan_level = PANAAC_FAN_LEVEL_1;
                     break;
                 case PANAAC_FAN_LEVEL_2:
+                    // fan_level_steps_ >= 4 しかあり得ない
                     ac_state.fan_mode = STR_FAN_L2;
                     ac_state.fan_level = PANAAC_FAN_LEVEL_2;
                     break;
@@ -281,6 +282,7 @@ namespace esphome
                     ac_state.fan_level = PANAAC_FAN_LEVEL_3;
                     break;
                 case PANAAC_FAN_LEVEL_4:
+                    // fan_level_steps_ == 5 しかあり得ない
                     ac_state.fan_mode = STR_FAN_L4;
                     ac_state.fan_level = PANAAC_FAN_LEVEL_4;
                     break;
