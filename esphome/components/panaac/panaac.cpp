@@ -29,40 +29,11 @@ namespace esphome
             ac_state.mode = climate::CLIMATE_MODE_OFF;
             ac_state.temp = 26.0;
             ac_state.fan_mode = climate::CLIMATE_FAN_AUTO;
-            ac_state.fan_level = PANAAC_FAN_AUTO;
             ac_state.swing_mode = climate::CLIMATE_SWING_VERTICAL;
             ac_state.swing_v_pos = PANAAC_SWINGV_AUTO;
             ac_state.swing_h_pos = PANAAC_SWINGH_AUTO;
             ac_state.last_swing_v_pos = PANAAC_SWINGV_MIDDLE;
             ac_state.last_swing_h_pos = PANAAC_SWINGH_MIDDLE;
-
-            // fan level options
-            FixedVector<const char *> fanlevel_options;
-            fanlevel_options.init(7);
-            if (this->fan_5level_)
-            {
-                fanlevel_options.push_back(STR_FAN_AUTO);
-                fanlevel_options.push_back(STR_FAN_L1);
-                fanlevel_options.push_back(STR_FAN_L2);
-                fanlevel_options.push_back(STR_FAN_L3);
-                fanlevel_options.push_back(STR_FAN_L4);
-                fanlevel_options.push_back(STR_FAN_L5);
-            }
-            else
-            {
-                fanlevel_options.push_back(STR_FAN_AUTO);
-                fanlevel_options.push_back(STR_FAN_L1);
-                fanlevel_options.push_back(STR_FAN_L3);
-                fanlevel_options.push_back(STR_FAN_L5);
-            }
-
-            // support quiet
-            if (this->supports_quiet_)
-            {
-                fanlevel_options.push_back(STR_FAN_QUIET);
-            }
-
-            this->fanlevel_->traits.set_options(fanlevel_options);
 
             // swing v options
             this->swingv_->traits.set_options({STR_SWINGV_AUTO, STR_SWINGV_HIGHEST, STR_SWINGV_HIGH, STR_SWINGV_MIDDLE, STR_SWINGV_LOW, STR_SWINGV_LOWEST});
@@ -418,7 +389,6 @@ namespace esphome
             this->swing_mode = ac_state.swing_mode;
             this->publish_state();
 
-            this->fanlevel_->set_fanlevel(ac_state.fan_level);
             this->swingv_->set_swingvpos(ac_state.swing_v_pos);
             if (this->swing_horizontal_)
             {
@@ -716,7 +686,6 @@ namespace esphome
             this->swing_mode = ac_state.swing_mode;
             this->publish_state();
 
-            this->fanlevel_->set_fanlevel(ac_state.fan_level);
             this->swingv_->set_swingvpos(ac_state.swing_v_pos);
             if (this->swing_horizontal_)
             {

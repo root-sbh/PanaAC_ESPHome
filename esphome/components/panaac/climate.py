@@ -21,7 +21,6 @@ AUTO_LOAD = ['climate_ir','select']
 
 panaac_ns = cg.esphome_ns.namespace('panaac')
 PanaACClimate = panaac_ns.class_('PanaACClimate', climate_ir.ClimateIR)
-PanaACFanLevel = panaac_ns.class_('PanaACFanLevel', select.Select, cg.Component)
 PanaACSwingV = panaac_ns.class_('PanaACSwingV', select.Select, cg.Component)
 PanaACSwingH = panaac_ns.class_('PanaACSwingH', select.Select, cg.Component)
 
@@ -29,23 +28,19 @@ CONF_SUPPORT_FAN_ONLY = "supports_fan_only"
 CONF_SWING_HORIZONTAL = "swing_horizontal"
 CONF_TEMP_STEP = "temp_step"
 CONF_SUPPORT_QUIET = "supports_quiet"
-CONF_FAN_5LEVEL = "fan_5level"
 CONF_IR_CONTROL = "ir_control"
 
 CONF_SWINGV_ID = "swingv_id"
 CONF_SWINGH_ID = "swingh_id"
-CONF_FANLEVEL_ID = "fanlevel_id"
 
 CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(PanaACClimate).extend({
     cv.GenerateID(): cv.declare_id(PanaACClimate),
     cv.GenerateID(CONF_SWINGV_ID): cv.declare_id(PanaACSwingV),
     cv.GenerateID(CONF_SWINGH_ID): cv.declare_id(PanaACSwingH),
-    cv.GenerateID(CONF_FANLEVEL_ID): cv.declare_id(PanaACFanLevel),
     cv.Optional(CONF_SWING_HORIZONTAL, default=False): cv.boolean,
     cv.Optional(CONF_TEMP_STEP, default=1.0): cv.float_,
     cv.Optional(CONF_SUPPORT_QUIET, default=False): cv.boolean,
     cv.Optional(CONF_SUPPORT_FAN_ONLY, default=False): cv.boolean,
-    cv.Optional(CONF_FAN_5LEVEL, default=False): cv.boolean,
     cv.Optional(CONF_IR_CONTROL, default=False): cv.boolean,
 })
 
@@ -57,18 +52,7 @@ async def to_code(config):
     cg.add(var.set_temp_step(config[CONF_TEMP_STEP]))
     cg.add(var.set_supports_fan_only(config[CONF_SUPPORT_FAN_ONLY]))
     cg.add(var.set_supports_quiet(config[CONF_SUPPORT_QUIET]))
-    cg.add(var.set_fan_5level(config[CONF_FAN_5LEVEL]))
     cg.add(var.set_ir_control(config[CONF_IR_CONTROL]))
-
-    # Fan level select
-    fanlevel_default_config = { CONF_ID: config[CONF_FANLEVEL_ID],
-                                CONF_NAME: "- Fan Level",
-                                CONF_DISABLED_BY_DEFAULT: False}
-    fanlevel = cg.new_Pvariable(config[CONF_FANLEVEL_ID])
-    await select.register_select(fanlevel, fanlevel_default_config, options=[])
-    await cg.register_component(fanlevel, fanlevel_default_config)
-    cg.add(fanlevel.set_parent_climate(var))
-    cg.add(var.set_fanlevel(fanlevel))
     
     # SwingV select
     swingv_default_config = {   CONF_ID: config[CONF_SWINGV_ID],
