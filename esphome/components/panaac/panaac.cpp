@@ -957,5 +957,44 @@ namespace esphome
 
         }
 
+        void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {
+            this->supports_nanoex_ = supports_nanoex;
+            this->supports_nanoex_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.nanoex)
+                    return;
+                this->ac_state.nanoex = state;
+                update_state();
+            });
+        }
+    
+        void PanaACClimate::set_supports_econavi(switch_::Switch *supports_econavi) {
+            this->supports_econavi_ = supports_econavi;
+            this->supports_econavi_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.econavi)
+                    return;
+                this->ac_state.econavi = state;
+                update_state();
+            });
+        }
+
+        void PanaACClimate::set_supports_cool_with_dry(switch_::Switch *supports_cool_with_dry) {
+            this->supports_cool_with_dry_ = supports_cool_with_dry;
+            this->supports_cool_with_dry_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.cool_with_dry)
+                    return;
+                this->ac_state.cool_with_dry = state;
+                update_state();
+            });
+        }
+
+        void PanaACClimate::set_supports_clothes_dry(switch_::Switch *supports_clothes_dry) {
+            this->supports_clothes_dry_ = supports_clothes_dry;
+            this->supports_clothes_dry_->add_on_state_callback([this](bool state) {
+                if (state == this->ac_state.clothes_dry)
+                    return;
+                this->ac_state.clothes_dry = state;
+                update_state();
+            });
+        }
     } // namespace panaac
 } // namespace esphome

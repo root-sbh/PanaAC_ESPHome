@@ -49,10 +49,10 @@ namespace esphome
             void set_fan_level_steps(int fan_level_steps) { this->fan_level_steps_ = fan_level_steps; }
             void set_ir_control(bool ir_control) { this->ir_control_ = ir_control; }
 
-            void set_supports_nanoex(bool supports_nanoex) { this->supports_nanoex_ = supports_nanoex; }
-            void set_supports_econavi(bool supports_econavi) { this->supports_econavi_ = supports_econavi; }
-            void set_supports_cool_with_dry(bool supports_cool_with_dry) { this->supports_cool_with_dry_ = supports_cool_with_dry; }
-            void set_supports_clothes_dry(bool supports_clothes_dry) { this->supports_clothes_dry_ = supports_clothes_dry; }
+            void set_supports_nanoex(switch_::Switch *supports_nanoex);
+            void set_supports_econavi(switch_::Switch *supports_econavi);
+            void set_supports_cool_with_dry(switch_::Switch *supports_cool_with_dry);
+            void set_supports_clothes_dry(switch_::Switch *supports_clothes_dry);
 
             // void set_fanlevel(PanaACFanLevel *fanlevel) { this->fanlevel_ = fanlevel; }
             void set_swingv(PanaACSwingV *swingv) { this->swingv_ = swingv; }
@@ -79,10 +79,10 @@ namespace esphome
             int fan_level_steps_;
             bool ir_control_;
             bool supports_fan_only_;
-            bool supports_nanoex_;
-            bool supports_econavi_;
-            bool supports_cool_with_dry_;
-            bool supports_clothes_dry_;
+            switch_::Switch *supports_nanoex_ = nullptr;
+            switch_::Switch *supports_econavi_ = nullptr;
+            switch_::Switch *supports_cool_with_dry_ = nullptr;
+            switch_::Switch *supports_clothes_dry_ = nullptr;
 
             // PanaACFanLevel *fanlevel_{nullptr};
             PanaACSwingV *swingv_{nullptr};
