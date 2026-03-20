@@ -163,7 +163,7 @@ namespace esphome
                     // bit 0
                     else if (data.expect_item(PANAAC_BIT_MARK, PANAAC_ZERO_SPACE))
                     {
-                        // 0 already initialized, hence do nothingg here
+                        // 0 already initialized, hence do nothing here
                     }
                     else
                     {
