@@ -53,14 +53,14 @@ CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(PanaACClimate).extend
     # cv.GenerateID(CONF_FANLEVEL_ID): cv.declare_id(PanaACFanLevel),
     cv.Optional(CONF_SWING_HORIZONTAL, default=False): cv.boolean,
     cv.Optional(CONF_TEMP_STEP, default=1.0): cv.float_,
-    cv.Optional(CONF_FAN_LEVEL_STEPS, default=3): cv.int_range(min=3, max=5),
+    # cv.Optional(CONF_FAN_LEVEL_STEPS, default=3): cv.int_range(min=3, max=5),
     cv.Optional(CONF_SUPPORT_QUIET, default=False): cv.boolean,
     cv.Optional(CONF_SUPPORT_FAN_ONLY, default=False): cv.boolean,
     cv.Optional(CONF_SUPPORT_POWERFUL, default=False): cv.boolean,
-    cv.Optional(CONF_NANOEX_SWITCH): SWITCH_SCHEMA,
-    cv.Optional(CONF_ECONAVI_SWITCH): SWITCH_SCHEMA,
-    cv.Optional(CONF_COOL_WITH_DRY_SWITCH): SWITCH_SCHEMA,
-    cv.Optional(CONF_CLOTHES_DRY_SWITCH): SWITCH_SCHEMA,
+    # cv.Optional(CONF_NANOEX_SWITCH): SWITCH_SCHEMA,
+    # cv.Optional(CONF_ECONAVI_SWITCH): SWITCH_SCHEMA,
+    # cv.Optional(CONF_COOL_WITH_DRY_SWITCH): SWITCH_SCHEMA,
+    # cv.Optional(CONF_CLOTHES_DRY_SWITCH): SWITCH_SCHEMA,
     cv.Optional(CONF_IR_CONTROL, default=False): cv.boolean,
 })
 
@@ -73,11 +73,11 @@ async def to_code(config):
     cg.add(var.set_supports_fan_only(config[CONF_SUPPORT_FAN_ONLY]))
     cg.add(var.set_supports_quiet(config[CONF_SUPPORT_QUIET]))
     cg.add(var.set_supports_powerful(config[CONF_SUPPORT_POWERFUL]))
-    cg.add(var.set_fan_level_steps(config[CONF_FAN_LEVEL_STEPS]))
-    cg.add(var.set_supports_nanoex(config[CONF_NANOEX_SWITCH]))
-    cg.add(var.set_supports_econavi(config[CONF_ECONAVI_SWITCH]))
-    cg.add(var.set_supports_cool_with_dry(config[CONF_COOL_WITH_DRY_SWITCH]))
-    cg.add(var.set_supports_clothes_dry(config[CONF_CLOTHES_DRY_SWITCH]))
+    # cg.add(var.set_fan_level_steps(config[CONF_FAN_LEVEL_STEPS]))
+    # cg.add(var.set_supports_nanoex(config[CONF_NANOEX_SWITCH]))
+    # cg.add(var.set_supports_econavi(config[CONF_ECONAVI_SWITCH]))
+    # cg.add(var.set_supports_cool_with_dry(config[CONF_COOL_WITH_DRY_SWITCH]))
+    # cg.add(var.set_supports_clothes_dry(config[CONF_CLOTHES_DRY_SWITCH]))
     cg.add(var.set_ir_control(config[CONF_IR_CONTROL]))
 
     # Fan level select
@@ -111,9 +111,9 @@ async def to_code(config):
     cg.add(swingh.set_parent_climate(var))
     cg.add(var.set_swingh(swingh))
 
-    for s in [CONF_NANOEX_SWITCH, CONF_ECONAVI_SWITCH, CONF_COOL_WITH_DRY_SWITCH, CONF_CLOTHES_DRY_SWITCH]:
-        if s in config:
-            conf = config[s]
-            a_switch = await switch.new_switch(conf)
-            await cg.register_component(a_switch, conf)
-            cg.add(getattr(var, f"set_{s}")(a_switch))
+    # for s in [CONF_NANOEX_SWITCH, CONF_ECONAVI_SWITCH, CONF_COOL_WITH_DRY_SWITCH, CONF_CLOTHES_DRY_SWITCH]:
+    #     if s in config:
+    #         conf = config[s]
+    #         a_switch = await switch.new_switch(conf)
+    #         await cg.register_component(a_switch, conf)
+    #         cg.add(getattr(var, f"set_{s}")(a_switch))
