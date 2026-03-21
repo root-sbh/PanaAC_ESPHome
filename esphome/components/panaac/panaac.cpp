@@ -303,7 +303,7 @@ namespace esphome
             if (ac_state.mode == climate::CLIMATE_MODE_DRY)
             {
                 if ((state_bytes[PANAAC_BYTEPOS_TEMP] >> 5) == 0x06) {
-                    int8_t temp_dry = (state_bytes[PANAAC_BYTEPOS_TEMP] >> 1) | ((((state_bytes[PANAAC_BYTEPOS_TEMP] >> 1) & 0x08) == 0x08) ? 0xF0 : 0x00);
+                    int8_t temp_dry = ((state_bytes[PANAAC_BYTEPOS_TEMP] >> 1) & 0x0F) | ((((state_bytes[PANAAC_BYTEPOS_TEMP] >> 1) & 0x08) == 0x08) ? 0xF0 : 0x00);
                     this->visual_min_temperature_override_ = -3.0f;
                     this->visual_max_temperature_override_ = 1.0f;
                     this->visual_target_temperature_step_override_ = 1.0f;
