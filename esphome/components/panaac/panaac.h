@@ -19,6 +19,7 @@
 #include "definitions.h"
 #include "extra.h"
 #include "esphome/core/preferences.h"
+#include <vector>
 #include <cinttypes>
 
 namespace esphome
@@ -61,7 +62,7 @@ namespace esphome
             void update_state();
             void transmit_data();
 
-            ClimateState ac_state;
+            ClimateState *ac_state;
             bool swing_horizontal_;
 
         protected:
@@ -71,7 +72,7 @@ namespace esphome
             climate::ClimateTraits traits() override;
 
             bool decode_data(remote_base::RemoteReceiveData data, std::vector<uint8_t>& state_bytes);
-            bool decode_state(std::vector<uint8_t> state_bytes, ClimateState& state);
+            bool decode_state(std::vector<uint8_t> state_bytes);
             
             float temp_step_;
             int fan_level_steps_;
