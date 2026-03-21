@@ -306,9 +306,9 @@ namespace esphome
             {
                 ac_state.temp += 0.5;
             }
-            this->visual_min_temperature_override_ = PANAAC_TEMP_MIN;
-            this->visual_max_temperature_override_ = PANAAC_TEMP_MAX;
-            this->visual_target_temperature_step_override_ = this->temp_step_;
+            // this->visual_min_temperature_override_ = PANAAC_TEMP_MIN;
+            // this->visual_max_temperature_override_ = PANAAC_TEMP_MAX;
+            // this->visual_target_temperature_step_override_ = this->temp_step_;
 
             if (ac_state.mode == climate::CLIMATE_MODE_DRY)
             {
@@ -512,8 +512,6 @@ namespace esphome
             this->set_custom_fan_mode_(ac_state.fan_mode);
             this->swing_mode = ac_state.swing_mode;
             this->publish_state();
-            ESP_LOGD(TAG, "min_temp = %.1f, max_temp = %.1f",
-                this->visual_min_temperature_override_, this->visual_max_temperature_override_);
 
             this->swingv_->set_swingvpos(ac_state.swing_v_pos);
             if (this->swing_horizontal_)
