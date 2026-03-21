@@ -62,8 +62,6 @@ namespace esphome
             else
             {
                 ESP_LOGV(TAG, "No status list found in preferences, starting with empty list.");
-                *status_list_ = {ClimateState(), ClimateState(), ClimateState(), ClimateState(), ClimateState(),
-                                ClimateState(), ClimateState(), ClimateState(), ClimateState(), ClimateState()};
                 for (int i = 0; i < status_list_->size(); i++)
                 {
                     ESP_LOGI(TAG, "Initializing status for mode %d", i);
