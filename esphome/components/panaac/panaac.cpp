@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+ #define USE_CLIMATE_VISUAL_OVERRIDES 1
  #include "panaac.h"
 
 namespace esphome
