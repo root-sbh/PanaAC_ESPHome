@@ -61,9 +61,7 @@ namespace esphome
 
             void update_state();
             void transmit_data();
-
             
-
             ClimateState *ac_state;
             bool swing_horizontal_;
 
