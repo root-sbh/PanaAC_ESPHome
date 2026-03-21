@@ -38,7 +38,7 @@ namespace esphome
             else
             {
                 ESP_LOGV(TAG, "No status list found in preferences, starting with empty list.");
-                status_list_ = std::array<ClimateState, 10>();
+                status_list_ = &std::array<ClimateState, 10>();
                 ac_state = &((*status_list_)[climate::CLIMATE_MODE_OFF]);
                 ac_state->mode = climate::CLIMATE_MODE_OFF;
                 ac_state->temp = 26.0;
