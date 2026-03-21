@@ -48,6 +48,9 @@ namespace esphome
             void set_supports_powerful(bool supports_powerful) { this->supports_powerful_ = supports_powerful; }
             void set_supports_fan_only(bool supports_fan_only) { this->supports_fan_only_ = supports_fan_only; }
             void set_ir_control(bool ir_control) { this->ir_control_ = ir_control; }
+            void set_minimum_temperature(float minimum_temperature) { this->minimum_temperature_ = minimum_temperature; }
+            void set_maximum_temperature(float maximum_temperature) { this->maximum_temperature_ = maximum_temperature; }
+            void set_target_temperature_step(float target_temperature_step) { this->temperature_step_ = target_temperature_step; }
 
             void set_supports_nanoex(switch_::Switch *supports_nanoex);
             void set_supports_econavi(switch_::Switch *supports_econavi);
