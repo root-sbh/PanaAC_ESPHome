@@ -64,6 +64,7 @@ namespace esphome
                 ESP_LOGV(TAG, "No status list found in preferences, starting with empty list.");
                 for (int i = 0; i < status_list_->size(); i++)
                 {
+                    ESP_LOGI(TAG, "Initializing status for mode %d", i);
                     (*status_list_)[i] = ClimateState
                     {
                         mode: static_cast<climate::ClimateMode>(i),

@@ -61,7 +61,7 @@ namespace esphome
 
             void update_state();
             void transmit_data();
-            
+
             ClimateState *ac_state;
             bool swing_horizontal_;
 
@@ -91,7 +91,7 @@ namespace esphome
 
             ESPPreferenceObject status_pref_;
             //7で良いけど今後の拡張時のために10にしておく
-            std::array<ClimateState, 10> *status_list_;
+            std::array<ClimateState, 10> *status_list_ = {ClimateState{}};
 
             void save_pref();
         };
