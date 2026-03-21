@@ -134,6 +134,7 @@ namespace esphome
                 traits.add_supported_swing_mode(climate::CLIMATE_SWING_BOTH);
             }
             
+            ESP_LOGV(TAG, "Final visual temperature range to %f ~ %f", traits.visual_min_temperature_, traits.visual_max_temperature_);
             return traits;
         }
         
