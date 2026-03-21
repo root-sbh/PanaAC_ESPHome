@@ -19,7 +19,7 @@
 #include "definitions.h"
 #include "extra.h"
 #include "esphome/core/preferences.h"
-#include <vector>
+#include <array>
 #include <cinttypes>
 
 namespace esphome
@@ -90,7 +90,8 @@ namespace esphome
             PanaACSwingH *swingh_{nullptr};
 
             ESPPreferenceObject status_pref_;
-            std::vector<ClimateState> *status_list_;
+            //7で良いけど今後の拡張時のために10にしておく
+            std::array<ClimateState, 10> *status_list_;
 
             void save_pref();
         };
