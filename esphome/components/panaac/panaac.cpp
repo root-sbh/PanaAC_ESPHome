@@ -84,9 +84,21 @@ namespace esphome
                 traits.clear_feature_flags(climate::ClimateFeature::CLIMATE_SUPPORTS_CURRENT_TEMPERATURE);
             }
             traits.clear_feature_flags(climate::ClimateFeature::CLIMATE_SUPPORTS_ACTION);
-            traits.set_visual_min_temperature(PANAAC_TEMP_MIN);
-            traits.set_visual_max_temperature(PANAAC_TEMP_MAX);
-            traits.set_visual_temperature_step(this->temp_step_);
+
+            if (this->ac_state.mode == climate::CLIMATE_MODE_DRY && !this->ac_state.cool_with_dry) {
+                ESP_LOGV(TAG, "In dry mode without cool, set visual temperature range to -3 ~ 1");
+                traits.set_visual_min_temperature(-3.0f);
+                traits.set_visual_max_temperature(1.0f);
+                traits.set_visual_temperature_step(1.0f);
+            }
+            else
+            {
+                ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f", PANAAC_TEMP_MIN, PANAAC_TEMP_MAX);
+                traits.set_visual_min_temperature(PANAAC_TEMP_MIN);
+                traits.set_visual_max_temperature(PANAAC_TEMP_MAX);
+                traits.set_visual_temperature_step(this->temp_step_);
+            }
+            
             traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_AUTO, climate::CLIMATE_MODE_DRY});
             
             if (this->supports_cool_)
