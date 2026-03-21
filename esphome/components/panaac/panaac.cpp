@@ -238,7 +238,7 @@ namespace esphome
                     case PANAAC_MODE_DRY:
                         ac_state.mode = climate::CLIMATE_MODE_DRY;
 
-                        // this->visual_min_temperature_override_ = -3.0f;
+                        this->visual_min_temperature_override_ = -3.0f;
                         // this->visual_max_temperature_override_ = 1.0f;
                         // this->visual_target_temperature_step_override_ = 1.0f;
 
