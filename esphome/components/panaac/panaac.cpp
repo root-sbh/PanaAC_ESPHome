@@ -930,7 +930,8 @@ namespace esphome
             transmit_data();
 
             this->publish_state();
-
+            ESP_LOGD(TAG, "min_temp = %.1f, max_temp = %.1f",
+                    this->visual_min_temperature_override_, this->visual_max_temperature_override_);
         }
 
         void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {
