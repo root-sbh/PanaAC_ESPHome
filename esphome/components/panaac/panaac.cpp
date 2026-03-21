@@ -256,56 +256,59 @@ namespace esphome
                         ac_state->mode = climate::CLIMATE_MODE_DRY;
 
                         //TODO: status_list_からtempを読み込んで設定したい
-                        this->set_visual_min_temperature_override(-3.0f);
-                        this->set_visual_max_temperature_override(1.0f);
-                        this->set_visual_temperature_step_override(1.0f, 1.0f);
+                        this->visual_min_temperature_override_ = -3.0f;
+                        this->visual_max_temperature_override_ = 1.0f;
+                        this->visual_target_temperature_step_override_ = 1.0f;
+                        // this->set_visual_min_temperature_override(-3.0f);
+                        // this->set_visual_max_temperature_override(1.0f);
+                        // this->set_visual_temperature_step_override(1.0f, 1.0f);
 
                         //cool_with_dry
                         if (this->supports_cool_with_dry_)
                         {
                             ac_state->cool_with_dry = (((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xC0) >> 6) == 0x03);
-                            this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
-                            this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
-                            this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
+                            // this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
+                            // this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
+                            // this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         }
 
                         //clothes_dry
                         if (this->supports_clothes_dry_)
                         {
                             ac_state->clothes_dry = (((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xFE) >> 1) == 0x00);
-                            this->set_visual_min_temperature_override(0.0f);
-                            this->set_visual_max_temperature_override(0.0f);
-                            this->set_visual_temperature_step_override(1.0f, 1.0f);
+                            // this->set_visual_min_temperature_override(0.0f);
+                            // this->set_visual_max_temperature_override(0.0f);
+                            // this->set_visual_temperature_step_override(1.0f, 1.0f);
                         }
                         break;
                     case PANAAC_MODE_COOL:
                         ac_state = &((*status_list_)[climate::CLIMATE_MODE_COOL]);
                         ac_state->mode = climate::CLIMATE_MODE_COOL;
-                        this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
-                        this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
-                        this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
+                        // this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
+                        // this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
+                        // this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         break;
                     case PANAAC_MODE_HEAT:
                         ac_state = &((*status_list_)[climate::CLIMATE_MODE_HEAT]);
                         ac_state->mode = climate::CLIMATE_MODE_HEAT;
-                        this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
-                        this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
-                        this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
+                        // this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
+                        // this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
+                        // this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         break;
                     case PANAAC_MODE_FAN_ONLY:
                         ac_state = &((*status_list_)[climate::CLIMATE_MODE_FAN_ONLY]);
                         ac_state->mode = climate::CLIMATE_MODE_FAN_ONLY;
-                        this->set_visual_min_temperature_override(0.0f);
-                        this->set_visual_max_temperature_override(0.0f);
-                        this->set_visual_temperature_step_override(1.0f, 1.0f);
+                        // this->set_visual_min_temperature_override(0.0f);
+                        // this->set_visual_max_temperature_override(0.0f);
+                        // this->set_visual_temperature_step_override(1.0f, 1.0f);
                         break;
                     case PANAAC_MODE_AUTO:
                     default:
                         ac_state = &((*status_list_)[climate::CLIMATE_MODE_AUTO]);
                         ac_state->mode = climate::CLIMATE_MODE_AUTO;
-                        this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
-                        this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
-                        this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
+                        // this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
+                        // this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
+                        // this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         break;
                 }
             }
