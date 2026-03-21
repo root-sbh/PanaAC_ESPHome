@@ -25,20 +25,33 @@ namespace esphome
         {
             ClimateIR::setup();
 
-            // state
-            ac_state.mode = climate::CLIMATE_MODE_OFF;
-            ac_state.temp = 26.0;
-            ac_state.fan_mode = STR_FAN_AUTO;
-            ac_state.fan_level = PANAAC_FAN_AUTO;
-            ac_state.swing_mode = climate::CLIMATE_SWING_VERTICAL;
-            ac_state.swing_v_pos = PANAAC_SWINGV_AUTO;
-            ac_state.swing_h_pos = PANAAC_SWINGH_AUTO;
-            ac_state.last_swing_v_pos = PANAAC_SWINGV_MIDDLE;
-            ac_state.last_swing_h_pos = PANAAC_SWINGH_MIDDLE;
-            ac_state.nanoex = false;
-            ac_state.econavi = false;
-            ac_state.cool_with_dry = false;
-            ac_state.clothes_dry = false;
+            // Load state from preferences
+            this->status_pref_ = global_preferences->make_preference<std::vector<ClimateState>>(this->get_component_version_checksum());
+            
+            if (this->status_pref_.load(&status_list_))
+            {
+                ESP_LOGV(TAG, "Loaded status list from preferences.");
+                *ac_state = *status_list_[climate::CLIMATE_MODE_OFF];
+            }
+            else
+            {
+                ESP_LOGV(TAG, "No status list found in preferences, starting with empty list.");
+                status_list_ = new std::vector<ClimateState>(7);
+                *ac_state = *status_list_[climate::CLIMATE_MODE_OFF];
+                ac_state.mode = climate::CLIMATE_MODE_OFF;
+                ac_state.temp = 26.0;
+                ac_state.fan_mode = STR_FAN_AUTO;
+                ac_state.fan_level = PANAAC_FAN_AUTO;
+                ac_state.swing_mode = climate::CLIMATE_SWING_VERTICAL;
+                ac_state.swing_v_pos = PANAAC_SWINGV_AUTO;
+                ac_state.swing_h_pos = PANAAC_SWINGH_AUTO;
+                ac_state.last_swing_v_pos = PANAAC_SWINGV_MIDDLE;
+                ac_state.last_swing_h_pos = PANAAC_SWINGH_MIDDLE;
+                ac_state.nanoex = false;
+                ac_state.econavi = false;
+                ac_state.cool_with_dry = false;
+                ac_state.clothes_dry = false;
+            }
 
             // swing v options
             this->swingv_->traits.set_options({STR_SWINGV_AUTO, STR_SWINGV_HIGHEST, STR_SWINGV_HIGH, STR_SWINGV_MIDDLE, STR_SWINGV_LOW, STR_SWINGV_LOWEST});
@@ -198,8 +211,9 @@ namespace esphome
             
         }
         
-        bool PanaACClimate::decode_state(std::vector<uint8_t> state_bytes, ClimateState& ac_state)
+        bool PanaACClimate::decode_state(std::vector<uint8_t> state_bytes)
         {
+            ClimateState ac_state;
             // check length
             if (state_bytes.size() != 19) return false;
             
@@ -228,6 +242,7 @@ namespace esphome
             // operation mode
             if ((state_bytes[PANAAC_BYTEPOS_POWER] & 0x0F) == PANAAC_POWER_OFF)
             {
+                *ac_state = *status_list_[climate::CLIMATE_MODE_OFF];
                 ac_state.mode = climate::CLIMATE_MODE_OFF;
             }
             else
@@ -235,14 +250,15 @@ namespace esphome
                 switch (state_bytes[PANAAC_BYTEPOS_MODE] & 0xF0)
                 {
                     case PANAAC_MODE_DRY:
+                        *ac_state = *status_list_[climate::CLIMATE_MODE_DRY];
                         ac_state.mode = climate::CLIMATE_MODE_DRY;
 
+                        //TODO: status_list_からtempを読み込んで設定したい
                         this->set_visual_min_temperature_override(-3.0f);
                         this->set_visual_max_temperature_override(1.0f);
                         this->set_visual_temperature_step_override(1.0f, 1.0f);
 
                         //cool_with_dry
-                        //温度設定の変更どうやるの？(絶対温度と相対温度の変更)
                         if (this->supports_cool_with_dry_)
                         {
                             ac_state.cool_with_dry = (((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xC0) >> 6) == 0x03);
@@ -261,18 +277,21 @@ namespace esphome
                         }
                         break;
                     case PANAAC_MODE_COOL:
+                        *ac_state = *status_list_[climate::CLIMATE_MODE_COOL];
                         ac_state.mode = climate::CLIMATE_MODE_COOL;
                         this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
                         this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
                         this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         break;
                     case PANAAC_MODE_HEAT:
+                        *ac_state = *status_list_[climate::CLIMATE_MODE_HEAT];
                         ac_state.mode = climate::CLIMATE_MODE_HEAT;
                         this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
                         this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
                         this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         break;
                     case PANAAC_MODE_FAN_ONLY:
+                        *ac_state = *status_list_[climate::CLIMATE_MODE_FAN_ONLY];
                         ac_state.mode = climate::CLIMATE_MODE_FAN_ONLY;
                         this->set_visual_min_temperature_override(0.0f);
                         this->set_visual_max_temperature_override(0.0f);
@@ -280,6 +299,7 @@ namespace esphome
                         break;
                     case PANAAC_MODE_AUTO:
                     default:
+                        *ac_state = *status_list_[climate::CLIMATE_MODE_AUTO];
                         ac_state.mode = climate::CLIMATE_MODE_AUTO;
                         this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
                         this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
@@ -453,7 +473,7 @@ namespace esphome
             ESP_LOGV(TAG, "Finish receiveing Panasonic AC IR state: len = %d, data = [ %s]", state_bytes.size(), hex_str.c_str());
 #endif            
             
-            if (!decode_state(state_bytes, ac_state))
+            if (!decode_state(state_bytes))
             {
                 ESP_LOGV(TAG, "Decode state failed");
                 return false;
@@ -485,6 +505,8 @@ namespace esphome
             {
                 this->swingh_->set_swinghpos(ac_state.swing_h_pos);
             }
+
+            save_pref();
             
             return true;
         }
@@ -750,6 +772,8 @@ namespace esphome
         }
         
         void PanaACClimate::transmit_state() {
+            ac_state = *status_list_[this->mode];
+
             // power & mode
             ac_state.mode = this->mode;
 
@@ -898,10 +922,25 @@ namespace esphome
             {
                 this->swingh_->set_swinghpos(ac_state.swing_h_pos);
             }
+
+            save_pref();
+        }
+
+        void PanaACClimate::save_pref() {
+            status_list_[ac_state.mode] = ac_state;
+            if (this->status_pref_.save(&this->status_list_))
+            {
+                ESP_LOGV(TAG, "Saved current state to preferences");
+            }
+            else
+            {
+                ESP_LOGV(TAG, "Failed to save current state to preferences");
+            }
         }
 
         void PanaACClimate::update_state()
         {
+            //TODO: this->の設定4つ要らなくない？
             this->mode = ac_state.mode;
             this->target_temperature = ac_state.temp;
             this->set_custom_fan_mode_(ac_state.fan_mode);
@@ -910,6 +949,7 @@ namespace esphome
 
             this->publish_state();
 
+            save_pref();
         }
 
         void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {

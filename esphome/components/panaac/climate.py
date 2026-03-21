@@ -72,6 +72,7 @@ async def to_code(config):
     cg.add(var.set_supports_quiet(config[CONF_SUPPORT_QUIET]))
     cg.add(var.set_supports_powerful(config[CONF_SUPPORT_POWERFUL]))
     cg.add(var.set_ir_control(config[CONF_IR_CONTROL]))
+    # 設定永続化したい、preferencesを参照
     
     # SwingV select
     swingv_default_config = {   CONF_ID: config[CONF_SWINGV_ID],

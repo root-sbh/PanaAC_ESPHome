@@ -18,6 +18,7 @@
 
 #include "definitions.h"
 #include "extra.h"
+#include "esphome/core/preferences.h"
 #include <cinttypes>
 
 namespace esphome
@@ -86,6 +87,11 @@ namespace esphome
 
             PanaACSwingV *swingv_{nullptr};
             PanaACSwingH *swingh_{nullptr};
+
+            ESPPreferenceObject status_pref_;
+            std::vector<ClimateState> *status_list_;
+
+            void save_pref();
         };
 
 
