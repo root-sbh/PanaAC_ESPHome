@@ -85,7 +85,8 @@ namespace esphome
             }
             traits.clear_feature_flags(climate::ClimateFeature::CLIMATE_SUPPORTS_ACTION);
 
-            if (this->ac_state.mode == climate::CLIMATE_MODE_DRY && !this->ac_state.cool_with_dry) {
+            if (this->ac_state.mode == climate::CLIMATE_MODE_DRY && !this->ac_state.cool_with_dry)
+            {
                 traits.set_visual_min_temperature(-3.0f);
                 traits.set_visual_max_temperature(1.0f);
                 traits.set_visual_temperature_step(1.0f);
@@ -570,14 +571,17 @@ namespace esphome
             // temperature with Dry
             if (ac_state.mode != climate::CLIMATE_MODE_DRY)
             {
-                if (ac_state.cool_with_dry)
+                if (!ac_state.cool_with_dry)
                 {
-                    //ここ相対温度だとこんな感じ
-                    second_frame[PANAAC_BYTEPOS_TEMP] = 0xC0 | ((static_cast<int8_t>(ac_state.temp) & 0x0F) << 1);
-                }
-                else if (ac_state.clothes_dry)
-                {
-                    second_frame[PANAAC_BYTEPOS_TEMP] = 0x00;
+                    if (ac_state.clothes_dry)
+                    {
+                        second_frame[PANAAC_BYTEPOS_TEMP] = 0x00;
+                    }
+                    else
+                    {
+                        //ここ相対温度だとこんな感じ
+                        second_frame[PANAAC_BYTEPOS_TEMP] = 0xC0 | ((static_cast<int8_t>(ac_state.temp) & 0x0F) << 1);
+                    }
                 }
             }
 
