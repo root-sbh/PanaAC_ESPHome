@@ -36,7 +36,7 @@ namespace esphome
 
                 for (int i = 0; i < status_list_->size(); i++)
                 {
-                    ac_state = &(*status_list_)[i];
+                    ac_state = &(status_list_[i]);
                     if (ac_state == nullptr)
                     {
                         *ac_state = ClimateState
@@ -57,16 +57,16 @@ namespace esphome
                         };
                     }
                 }
-                ac_state = &((*status_list_)[climate::CLIMATE_MODE_OFF]);
+                ac_state = &(status_list_[climate::CLIMATE_MODE_OFF]);
             }
             else
             {
                 ESP_LOGV(TAG, "No status list found in preferences, starting with empty list.");
-                (*status_list_) = {};
+                status_list_ = {};
                 for (int i = 0; i < status_list_->size(); i++)
                 {
                     ESP_LOGI(TAG, "Initializing status for mode %d", i);
-                    (*status_list_)[i] = ClimateState
+                    status_list_[i] = ClimateState
                     {
                         mode: static_cast<climate::ClimateMode>(i),
                         temp: 26.0f,
@@ -85,7 +85,7 @@ namespace esphome
                     };
 
                 }
-                ac_state = &((*status_list_)[static_cast<int>(climate::CLIMATE_MODE_OFF)]);
+                ac_state = &(status_list_[static_cast<int>(climate::CLIMATE_MODE_OFF)]);
             }
 
             // swing v options
@@ -277,7 +277,7 @@ namespace esphome
             // operation mode
             if ((state_bytes[PANAAC_BYTEPOS_POWER] & 0x0F) == PANAAC_POWER_OFF)
             {
-                ac_state = &((*status_list_)[static_cast<int>(climate::CLIMATE_MODE_OFF)]);
+                ac_state = &(status_list_[static_cast<int>(climate::CLIMATE_MODE_OFF)]);
                 ac_state->mode = climate::CLIMATE_MODE_OFF;
             }
             else
@@ -285,7 +285,7 @@ namespace esphome
                 switch (state_bytes[PANAAC_BYTEPOS_MODE] & 0xF0)
                 {
                     case PANAAC_MODE_DRY:
-                        ac_state = &((*status_list_)[static_cast<int>(climate::CLIMATE_MODE_DRY)]);
+                        ac_state = &(status_list_[static_cast<int>(climate::CLIMATE_MODE_DRY)]);
                         ac_state->mode = climate::CLIMATE_MODE_DRY;
 
                         //TODO: status_list_からtempを読み込んで設定したい
@@ -315,21 +315,21 @@ namespace esphome
                         }
                         break;
                     case PANAAC_MODE_COOL:
-                        ac_state = &((*status_list_)[static_cast<int>(climate::CLIMATE_MODE_COOL)]);
+                        ac_state = &(status_list_[static_cast<int>(climate::CLIMATE_MODE_COOL)]);
                         ac_state->mode = climate::CLIMATE_MODE_COOL;
                         // this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
                         // this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
                         // this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         break;
                     case PANAAC_MODE_HEAT:
-                        ac_state = &((*status_list_)[static_cast<int>(climate::CLIMATE_MODE_HEAT)]);
+                        ac_state = &(status_list_[static_cast<int>(climate::CLIMATE_MODE_HEAT)]);
                         ac_state->mode = climate::CLIMATE_MODE_HEAT;
                         // this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
                         // this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
                         // this->set_visual_temperature_step_override(this->temp_step_, 1.0f);
                         break;
                     case PANAAC_MODE_FAN_ONLY:
-                        ac_state = &((*status_list_)[static_cast<int>(climate::CLIMATE_MODE_FAN_ONLY)]);
+                        ac_state = &(status_list_[static_cast<int>(climate::CLIMATE_MODE_FAN_ONLY)]);
                         ac_state->mode = climate::CLIMATE_MODE_FAN_ONLY;
                         // this->set_visual_min_temperature_override(0.0f);
                         // this->set_visual_max_temperature_override(0.0f);
@@ -337,7 +337,7 @@ namespace esphome
                         break;
                     case PANAAC_MODE_AUTO:
                     default:
-                        ac_state = &((*status_list_)[static_cast<int>(climate::CLIMATE_MODE_AUTO)]);
+                        ac_state = &(status_list_[static_cast<int>(climate::CLIMATE_MODE_AUTO)]);
                         ac_state->mode = climate::CLIMATE_MODE_AUTO;
                         // this->set_visual_min_temperature_override(PANAAC_TEMP_MIN);
                         // this->set_visual_max_temperature_override(PANAAC_TEMP_MAX);
@@ -810,7 +810,7 @@ namespace esphome
         }
         
         void PanaACClimate::transmit_state() {
-            ac_state = &((*status_list_)[static_cast<int>(this->mode)]);
+            ac_state = &(status_list_[static_cast<int>(this->mode)]);
 
             // power & mode
             ac_state->mode = this->mode;
@@ -965,7 +965,7 @@ namespace esphome
         }
 
         void PanaACClimate::save_pref() {
-            ClimateState *save_state = &((*status_list_)[static_cast<int>(ac_state->mode)]);
+            ClimateState *save_state = &(status_list_[static_cast<int>(ac_state->mode)]);
             *save_state = *ac_state; // copy state
             if (this->status_pref_.save(&this->status_list_))
             {
