@@ -106,7 +106,7 @@ namespace esphome
             traits.set_visual_min_temperature(this->minimum_temperature_);
             traits.set_visual_max_temperature(this->maximum_temperature_);
             traits.set_visual_temperature_step(this->temperature_step_);
-            
+            ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f", traits.get_visual_min_temperature(), traits.get_visual_max_temperature());
             traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_HEAT_COOL, climate::CLIMATE_MODE_DRY});
             
             if (this->supports_cool_)
@@ -143,12 +143,6 @@ namespace esphome
                 traits.add_supported_swing_mode(climate::CLIMATE_SWING_BOTH);
             }
             
-            return traits;
-        }
-
-        climate::ClimateTraits PanaACClimate::get_traits() {
-            auto traits = climate::Climate::get_traits();
-            ESP_LOGV(TAG, "Final setting visual temperature range to %f ~ %f", traits.get_visual_min_temperature(), traits.get_visual_max_temperature());
             return traits;
         }
         
