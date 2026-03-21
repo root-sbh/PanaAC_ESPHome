@@ -86,19 +86,17 @@ namespace esphome
             traits.clear_feature_flags(climate::ClimateFeature::CLIMATE_SUPPORTS_ACTION);
 
             if (this->ac_state.mode == climate::CLIMATE_MODE_DRY && !this->ac_state.cool_with_dry) {
-                ESP_LOGV(TAG, "In dry mode without cool, set visual temperature range to -3 ~ 1");
                 traits.set_visual_min_temperature(-3.0f);
                 traits.set_visual_max_temperature(1.0f);
                 traits.set_visual_temperature_step(1.0f);
             }
             else
             {
-                ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f", PANAAC_TEMP_MIN, PANAAC_TEMP_MAX);
                 traits.set_visual_min_temperature(PANAAC_TEMP_MIN);
                 traits.set_visual_max_temperature(PANAAC_TEMP_MAX);
                 traits.set_visual_temperature_step(this->temp_step_);
             }
-            
+            ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f", traits.get_visual_min_temperature(), traits.get_visual_max_temperature());
             traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_AUTO, climate::CLIMATE_MODE_DRY});
             
             if (this->supports_cool_)
@@ -316,16 +314,16 @@ namespace esphome
             {
                 if ((state_bytes[PANAAC_BYTEPOS_TEMP] >> 5) == 0x06) {
                     int8_t temp_dry = ((state_bytes[PANAAC_BYTEPOS_TEMP] >> 1) & 0x0F) | ((((state_bytes[PANAAC_BYTEPOS_TEMP] >> 1) & 0x08) == 0x08) ? 0xF0 : 0x00);
-                    this->visual_min_temperature_override_ = -3.0f;
-                    this->visual_max_temperature_override_ = 1.0f;
-                    this->visual_target_temperature_step_override_ = 1.0f;
+                    // this->visual_min_temperature_override_ = -3.0f;
+                    // this->visual_max_temperature_override_ = 1.0f;
+                    // this->visual_target_temperature_step_override_ = 1.0f;
                     ac_state.temp = temp_dry;
                 }
                 else
                 {
-                    this->visual_min_temperature_override_ = 0.0f;
-                    this->visual_max_temperature_override_ = 0.0f;
-                    this->visual_target_temperature_step_override_ = 1.0f;
+                    // this->visual_min_temperature_override_ = 0.0f;
+                    // this->visual_max_temperature_override_ = 0.0f;
+                    // this->visual_target_temperature_step_override_ = 1.0f;
                     ac_state.temp = 0.0f;
                 }
             }
@@ -927,8 +925,6 @@ namespace esphome
             this->set_custom_fan_mode_(ac_state.fan_mode);
             this->swing_mode = ac_state.swing_mode;
             this->publish_state();
-            ESP_LOGD(TAG, "min_temp = %.1f, max_temp = %.1f",
-                this->visual_min_temperature_override_, this->visual_max_temperature_override_);
 
             this->swingv_->set_swingvpos(ac_state.swing_v_pos);
             if (this->swing_horizontal_)
@@ -946,8 +942,6 @@ namespace esphome
             transmit_data();
 
             this->publish_state();
-            ESP_LOGD(TAG, "min_temp = %.1f, max_temp = %.1f",
-                    this->visual_min_temperature_override_, this->visual_max_temperature_override_);
         }
 
         void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {
