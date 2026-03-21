@@ -569,7 +569,7 @@ namespace esphome
             }
 
             // temperature with Dry
-            if (ac_state.mode != climate::CLIMATE_MODE_DRY)
+            if (ac_state.mode == climate::CLIMATE_MODE_DRY)
             {
                 if (!ac_state.cool_with_dry)
                 {
