@@ -91,6 +91,12 @@ namespace esphome
                 traits.set_visual_max_temperature(1.0f);
                 traits.set_visual_temperature_step(1.0f);
             }
+            else if (this->ac_state.mode == climate::CLIMATE_MODE_FAN_ONLY || this->ac_state.mode == climate::CLIMATE_MODE_OFF)
+            {
+                traits.set_visual_min_temperature(0.0f);
+                traits.set_visual_max_temperature(0.0f);
+                traits.set_visual_temperature_step(1.0f);
+            }
             else
             {
                 traits.set_visual_min_temperature(PANAAC_TEMP_MIN);
