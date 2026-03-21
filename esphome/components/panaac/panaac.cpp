@@ -42,7 +42,7 @@ namespace esphome
                         *ac_state = ClimateState
                         {
                             mode: static_cast<climate::ClimateMode>(i),
-                            temp: (static_cast<climate::ClimateMode>(i) == climate::ClimateMode::CLIMATE_MODE_FAN_ONLY || static_cast<climate::ClimateMode>(i) == climate::ClimateMode::CLIMATE_MODE_DRY) ? 0.0f : 26.0f,
+                            temp: 26.0f,
                             fan_mode: STR_FAN_AUTO,
                             fan_level: PANAAC_FAN_AUTO,
                             swing_mode: climate::ClimateSwingMode::CLIMATE_SWING_VERTICAL,
@@ -67,7 +67,8 @@ namespace esphome
                     (*status_list_)[i] = ClimateState
                     {
                         mode: static_cast<climate::ClimateMode>(i),
-                        temp: (static_cast<climate::ClimateMode>(i) == climate::ClimateMode::CLIMATE_MODE_FAN_ONLY || static_cast<climate::ClimateMode>(i) == climate::ClimateMode::CLIMATE_MODE_DRY) ? 0.0f : 26.0f,
+                        temp: 26.0f,
+                        //temp: (static_cast<climate::ClimateMode>(i) == climate::ClimateMode::CLIMATE_MODE_FAN_ONLY || static_cast<climate::ClimateMode>(i) == climate::ClimateMode::CLIMATE_MODE_DRY) ? 0.0f : 26.0f,
                         fan_mode: STR_FAN_AUTO,
                         fan_level: PANAAC_FAN_AUTO,
                         swing_mode: climate::ClimateSwingMode::CLIMATE_SWING_VERTICAL,
