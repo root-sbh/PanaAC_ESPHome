@@ -238,9 +238,10 @@ namespace esphome
                     case PANAAC_MODE_DRY:
                         ac_state.mode = climate::CLIMATE_MODE_DRY;
 
-                        this->set_visual_min_temperature_override(-3.0f);
-                        // this->visual_max_temperature_override_ = 1.0f;
-                        // this->visual_target_temperature_step_override_ = 1.0f;
+                        // this->set_visual_min_temperature_override(-3.0f);
+                        // this->set_visual_max_temperature_override(1.0f);
+                        // this->set_visual_temperature_step_override(1.0f, 1.0f);
+                        // this->target_temperature = 0.0f;
 
                         //cool_with_dry
                         //温度設定の変更どうやるの？(絶対温度と相対温度の変更)
@@ -294,6 +295,27 @@ namespace esphome
             if (((state_bytes[PANAAC_BYTEPOS_TEMP_HALF] & 0x80) >> 7) == 0x01)
             {
                 ac_state.temp += 0.5;
+            }
+            this->visual_min_temperature_override_ = PANAAC_TEMP_MIN;
+            this->visual_max_temperature_override_ = PANAAC_TEMP_MAX;
+            this->visual_target_temperature_step_override_ = this->temp_step_;
+
+            if (ac_state.mode == climate::CLIMATE_MODE_DRY)
+            {
+                if ((state_bytes[PANAAC_BYTEPOS_TEMP] >> 5) == 0x06) {
+                    int8_t temp_dry = ((state_bytes[PANAAC_BYTEPOS_TEMP] & 0xFE) >> 1) | 0xF0;
+                    this->visual_min_temperature_override_ = -3.0f;
+                    this->visual_max_temperature_override_ = 1.0f;
+                    this->visual_target_temperature_step_override_ = 1.0f;
+                    ac_state.temp = temp_dry;
+                }
+                else
+                {
+                    this->visual_min_temperature_override_ = 0.0f;
+                    this->visual_max_temperature_override_ = 0.0f;
+                    this->visual_target_temperature_step_override_ = 1.0f;
+                    ac_state.temp = 0.0f;
+                }
             }
             
             // fan
@@ -528,9 +550,7 @@ namespace esphome
             }
 
             // temperature
-            uint8_t encoded_temp = static_cast<uint8_t>(ac_state.temp) - PANAAC_TEMP_MIN;
-            encoded_temp &= 0x0F;
-            second_frame[PANAAC_BYTEPOS_TEMP] = 0x20 | (encoded_temp << 1);
+            second_frame[PANAAC_BYTEPOS_TEMP] = (static_cast<uint8_t>(ac_state.temp) << 1);
             
             if (ac_state.temp > static_cast<uint8_t>(ac_state.temp)) // if x.5 degree in some models
             {
@@ -543,7 +563,7 @@ namespace esphome
                 if (ac_state.cool_with_dry)
                 {
                     //ここ相対温度だとこんな感じ
-                    //second_frame[PANAAC_BYTEPOS_TEMP] = 0xC0 | ((static_cast<int8_t>(ac_state.temp) & 0x0F) << 1);
+                    second_frame[PANAAC_BYTEPOS_TEMP] = 0xC0 | ((static_cast<int8_t>(ac_state.temp) & 0x0F) << 1);
                 }
                 else if (ac_state.clothes_dry)
                 {
