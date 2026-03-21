@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define USE_CLIMATE_VISUAL_OVERRIDES
 
- #include "panaac.h"
+#include "panaac.h"
+#include "esphome/components/climate/climate.h"
 
 namespace esphome
 {
