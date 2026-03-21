@@ -98,7 +98,7 @@ namespace esphome
                 traits.set_visual_temperature_step(this->temp_step_);
             }
             ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f", traits.get_visual_min_temperature(), traits.get_visual_max_temperature());
-            traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_AUTO, climate::CLIMATE_MODE_DRY});
+            traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_HEAT_COOL, climate::CLIMATE_MODE_DRY});
             
             if (this->supports_cool_)
                 traits.add_supported_mode(climate::CLIMATE_MODE_COOL);
@@ -293,7 +293,7 @@ namespace esphome
                         break;
                     case PANAAC_MODE_AUTO:
                     default:
-                        ac_state.mode = climate::CLIMATE_MODE_AUTO;
+                        ac_state.mode = climate::CLIMATE_MODE_HEAT_COOL;
                         // this->visual_min_temperature_override_ = PANAAC_TEMP_MIN;
                         // this->visual_max_temperature_override_ = PANAAC_TEMP_MAX;
                         // this->visual_target_temperature_step_override_ = this->temp_step_;
@@ -550,7 +550,7 @@ namespace esphome
                     second_frame[PANAAC_BYTEPOS_POWER] |= PANAAC_POWER_ON;
                     second_frame[PANAAC_BYTEPOS_MODE]  |= PANAAC_MODE_FAN_ONLY;
                     break;
-                case climate::CLIMATE_MODE_AUTO:
+                case climate::CLIMATE_MODE_HEAT_COOL:
                     second_frame[PANAAC_BYTEPOS_POWER] |= PANAAC_POWER_ON;
                     second_frame[PANAAC_BYTEPOS_MODE]  |= PANAAC_MODE_AUTO;
                     break;
