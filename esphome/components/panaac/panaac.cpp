@@ -953,6 +953,10 @@ namespace esphome
             transmit_data();
 
             this->publish_state();
+
+            //これやりたいけどprotected method
+            //componentを弄る方が楽
+            //api::APIConnection::try_send_climate_info(this, APIServer::global_api_server->clients_？, ここなに？);
         }
 
         void PanaACClimate::set_supports_nanoex(switch_::Switch *supports_nanoex) {
