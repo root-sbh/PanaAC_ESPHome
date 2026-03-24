@@ -103,9 +103,10 @@ namespace esphome
             //     traits.set_visual_max_temperature(PANAAC_TEMP_MAX);
             //     traits.set_visual_temperature_step(this->temp_step_);
             // }
-            traits.set_visual_min_temperature(this->minimum_temperature_);
-            traits.set_visual_max_temperature(this->maximum_temperature_);
-            traits.set_visual_temperature_step(this->temperature_step_);
+            bool changed = false;
+            changed |= set_visual_min_temperature(this->minimum_temperature_);
+            changed |= set_visual_max_temperature(this->maximum_temperature_);
+            changed |= set_visual_temperature_step(this->temperature_step_);
             ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f", traits.get_visual_min_temperature(), traits.get_visual_max_temperature());
             traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_HEAT_COOL, climate::CLIMATE_MODE_DRY});
             
@@ -143,6 +144,8 @@ namespace esphome
                 traits.add_supported_swing_mode(climate::CLIMATE_SWING_BOTH);
             }
             
+            this->visual_info_override_ = changed;
+            ESP_LOGV(TAG, "Visual info Changed: %d", changed ? "true" : "false");
             return traits;
         }
         
