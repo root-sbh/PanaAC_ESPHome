@@ -104,9 +104,9 @@ namespace esphome
             //     traits.set_visual_temperature_step(this->temp_step_);
             // }
             bool changed = false;
-            changed |= set_visual_min_temperature(this->minimum_temperature_);
-            changed |= set_visual_max_temperature(this->maximum_temperature_);
-            changed |= set_visual_temperature_step(this->temperature_step_);
+            changed |= traits.set_visual_min_temperature(this->minimum_temperature_);
+            changed |= traits.set_visual_max_temperature(this->maximum_temperature_);
+            changed |= traits.set_visual_temperature_step(this->temperature_step_);
             ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f, changed: %s", traits.get_visual_min_temperature(), traits.get_visual_max_temperature(), changed ? "true" : "false");
             traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_HEAT_COOL, climate::CLIMATE_MODE_DRY});
             
