@@ -106,7 +106,8 @@ namespace esphome
             traits.set_visual_min_temperature(this->minimum_temperature_);
             traits.set_visual_max_temperature(this->maximum_temperature_);
             traits.set_visual_temperature_step(this->temperature_step_);
-            ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f, step: %f", traits.get_visual_min_temperature(), traits.get_visual_max_temperature(), traits.get_visual_target_temperature_step());
+            //ログ出すとなぜかapiでエラーが出る、protobufに下のログメッセージが載ってしまう
+            //ESP_LOGV(TAG, "Setting visual temperature range to %f ~ %f, step: %f", traits.get_visual_min_temperature(), traits.get_visual_max_temperature(), traits.get_visual_target_temperature_step());
             traits.set_supported_modes({climate::CLIMATE_MODE_OFF, climate::CLIMATE_MODE_HEAT_COOL, climate::CLIMATE_MODE_DRY});
             
             if (this->supports_cool_)
